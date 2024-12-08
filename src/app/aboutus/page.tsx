@@ -1,9 +1,19 @@
+
+
 import React from 'react'
 import styles from "./images/Robot.png"
 import icon1 from "./images/iconaboutus1.png"
 import icon2 from "./images/iconaboutus2.jpg"
 import icon3 from "./images/iconaboutus3.jpg"
 import "../styles/aboutus.css";
+import { Metadata } from 'next'
+
+
+export const metadata: Metadata = {
+    title: "About our Togethertech",
+    description: "About our website that provides news technology field all accross the world",
+  };
+
  function page() { 
   return (
     <main className="bg-[#1F242B] ">

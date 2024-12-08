@@ -1,13 +1,15 @@
-import Image from "next/image";
-import Navbar from "@/components/toolsbar";
-import { Button } from "@/components/ui/button" ;
+
+import Link from "next/link";
 
 
 export default function Home() {
   return (
     <>
-    <Navbar></Navbar>
-    <Button className="bg-red-800 ">Click me</Button>
+   
+    <Link href="/aboutus">
+    
+    </Link>
+    
 
     </>
   );
