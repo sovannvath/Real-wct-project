@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import './globals.css'
+
 export const metadata: Metadata = {
   title: "Togethertechs",
   description: "A website that contain news for general users and developer to navigate throughout the world",
