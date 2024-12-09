@@ -1,9 +1,18 @@
+import Hero from "@/components/Hero";
+import Navbar from "@/components/Navbar";
+import Utilitybar from "@/components/Utilitybar";
+import Footer from "@/components/Footer";
 
 
 export default function Home() {
   return (
-    <h1 className='bg-red-500 text-6xl'>
-      hello 
-    </h1>
+  <>
+   <Utilitybar/>
+   <Navbar /> 
+   <Hero />
+   
+   <Footer />
+  </>
+   
   );
 }
