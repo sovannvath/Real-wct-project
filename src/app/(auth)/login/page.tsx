@@ -1,70 +1,47 @@
 "use client";
 
-import { useState } from "react";
+import { useState, FormEvent } from "react";
 import styles from "../../styles/login.module.scss";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/firebase";
 
 const Login = () => {
-  const [error, setError] = useState<string | null>(null); // Store error message as a string
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [error , setError] = useState(false);
+  const [email , setEmail] = useState("");
+  const [password , setPassword] = useState("");
+  // ... existing code ...
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    // Handle successful login, e.g., redirect or show a success message
+  } catch (err) {
+    setError(true);
+  }
+};
 
-    signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-       
-        const user = userCredential.user;
-        console.log("User signed in:", user);
-        
-        setError(null);
-      })
-      .catch((error) => {
-        console.error("Error signing in:", error); // Log the entire error object
-        const errorMessage = error.message;
-        setError(errorMessage); 
-      });
-  };
-
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-    setError(null); 
-  };
-
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-    setError(null); 
-  };
-
-  return (
-    <div className={styles.login}>
-      <form className={styles.loginForm} onSubmit={handleSubmit}>
-        
-        <input
-          className={styles.loginInput}
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={handleEmailChange} 
-        />
-       
-        <input
-          id="password"
-          className={styles.loginInput}
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={handlePasswordChange}
-        />
-        <button className={styles.loginButton} type="submit">
-          Login
-        </button>
-        {error && <span className={styles.checkAuthentication}>{error}</span>} {/* Display error message */}
-      </form>
-    </div>
-  );
+return (
+  <div>
+    <form onSubmit={handleSubmit}> 
+      <input 
+        type="email" 
+        placeholder="Email" 
+        value={email} 
+        onChange={(e) => setEmail(e.target.value)} 
+      />
+      <input 
+        type="password" 
+        placeholder="Password" 
+        value={password} 
+        onChange={(e) => setPassword(e.target.value)} 
+      />
+      <button type="submit">Login</button>
+      {error && <span>Wrong email or password </span>}
+    </form>
+  </div>
+);
+  
 };
 
 export default Login;
