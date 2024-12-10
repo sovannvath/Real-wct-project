@@ -1,4 +1,4 @@
-
+import Navbar from "@/components/Navbar";
 import React from 'react'
 import icon1 from "./images/iconaboutus1.png"
 import icon2 from "./images/iconaboutus2.jpg"
@@ -15,7 +15,9 @@ export const metadata: Metadata = {
 
  function page() { 
   return (
+
     <main className="bg-[#1F242B] ">
+        <Navbar />
     <div className='pl-[60px] pt-[60px] '>
     <h1 className='text-white text-[2.5em] inline font-bold'>We provide the latest in technology <br />
     <span> news. </span>
@@ -137,7 +139,7 @@ please complete.i just ffffd."<br />
     </div>
     <div className='flex gap-[20px] pl-[60px] pt-[60px] text-white bg-[#46686c]'>
     <div>
-    <img src={Team.src} alt="A picture of group" width="400" height="500" className='pt-[50px] pl-[40px]' />
+    <img src={Team.src} alt="A picture of group" width="400" height="500" className='pt-[50px] pl-[40px] pb-[60px] ' />
     </div>
 
     </div>
