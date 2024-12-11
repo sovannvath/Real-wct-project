@@ -2,7 +2,7 @@
 import type { Metadata } from "next";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
-import ContentSidebar from "@/components/ContentSidebar";
+import AdminSidebar from "@/components/AdminSidebar"
 
 
 export const metadata: Metadata = {
@@ -22,7 +22,7 @@ export default function RootLayout({
       <body>
      
       <main className="flex">
-      <ContentSidebar></ContentSidebar>
+      <AdminSidebar></AdminSidebar>
         {children}
       </main>
 

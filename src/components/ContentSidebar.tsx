@@ -1,70 +1,173 @@
 "use client";
 
 import React, { useState } from "react";
-import { BiBookAlt, BiHome, BiMessage, BiSolidReport, BiStats, BiTask } from "react-icons/bi";
-import Link from "next/link";
+import {
+  Home,
+  BookOpen,
+  Star,
+  BarChart2,
+  MessageSquare,
+  FileText,
+  Users,
+  Search,
+  Award,
+} from "lucide-react";
 
 const ContentSidebar = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState("Feed");
 
   const menuItems = [
-    { label: 'Feed', icon: <BiHome className="text-xl" />, link: '/feed' },
-    { label: 'Bookmark', icon: <BiBookAlt className="text-xl" />, link: '/bookmark' },
-    { label: 'History', icon: <BiStats className="text-xl" />, link: '/history' },
-    { label: 'Favorite', icon: <BiTask className="text-xl" />, link: '/favorite' },
-    { label: 'Categories', icon: <BiSolidReport className="text-xl" />, link: '/category' },
-    { label: 'Discussion', icon: <BiSolidReport className="text-xl" />, link: '/discussion' },
-    { label: 'Find Team', icon: <BiSolidReport className="text-xl" />, link: '/findTeam' },
-    { label: 'Feedback', icon: <BiSolidReport className="text-xl" />, link: '/feedback' },
-    { label: 'Create New Team', icon: <BiSolidReport className="text-xl" />, link: '/createTeam' },
-    { label: 'Custom Feed', icon: <BiSolidReport className="text-xl" />, link: '/customFeed' },
-    { label: 'Leaderboard', icon: <BiSolidReport className="text-xl" />, link: '/leaderboard' },
+    { label: "Feed", icon: <Home className="w-5 h-5" />, link: "/feed" },
+    {
+      label: "Bookmark",
+      icon: <BookOpen className="w-5 h-5" />,
+      link: "/bookmark",
+    },
+    {
+      label: "History",
+      icon: <BarChart2 className="w-5 h-5" />,
+      link: "/history",
+    },
+    {
+      label: "Favorite",
+      icon: <Star className="w-5 h-5" />,
+      link: "/favorite",
+    },
+    {
+      label: "Categories",
+      icon: <FileText className="w-5 h-5" />,
+      link: "/category",
+    },
+    {
+      label: "Discussion",
+      icon: <MessageSquare className="w-5 h-5" />,
+      link: "/discussion",
+    },
+    {
+      label: "Find Team",
+      icon: <Users className="w-5 h-5" />,
+      link: "/findTeam",
+    },
+    {
+      label: "Feedback",
+      icon: <MessageSquare className="w-5 h-5" />,
+      link: "/feedback",
+    },
+    {
+      label: "Create New Team",
+      icon: <Users className="w-5 h-5" />,
+      link: "/createTeam",
+    },
+    {
+      label: "Custom Feed",
+      icon: <Search className="w-5 h-5" />,
+      link: "/customFeed",
+    },
+    {
+      label: "Leaderboard",
+      icon: <Award className="w-5 h-5" />,
+      link: "/leaderboard",
+    },
   ];
 
   return (
-    <div>
-      {/* Sidebar */}
-      <div
-        className={`flex flex-col gap-8 p-4 bg-gray-800 text-white fixed top-0 left-0 h-screen transition-all duration-300 ${isSidebarOpen ? "w-64" : "w-16"} overflow-auto`}
-      >
-        {/* Logo Section */}
-        <div className="flex flex-col items-center gap-2">
-          <BiBookAlt className="text-4xl" />
-          {isSidebarOpen && <h2 className="text-2xl font-bold">TogetherTechs</h2>}
+    <div className="flex flex-col min-h-screen">
+      {/* Mobile Header */}
+      <div className="md:hidden bg-gray-800 text-white p-4 flex justify-between items-center">
+        <div className="flex items-center gap-2">
+          <Home className="w-6 h-6" />
+          <h2 className="text-xl font-bold">TogetherTechs</h2>
         </div>
-
-        {/* Menu List */}
-        <div className="flex flex-col gap-4">
-          {menuItems.map((item, index) => (
-            <Link
-              key={index}
-              href={item.link}
-              className={`flex items-center gap-4 p-2 text-lg font-semibold rounded-lg transition-all duration-300 
-                ${activeMenu === item.label ? "bg-gray-700 text-blue-500" : "hover:bg-gray-700"} 
-                ${isSidebarOpen ? "px-4" : "px-2"}`}
-              onClick={() => setActiveMenu(item.label)} // Set active menu item on click
-            >
-              {item.icon}
-              {isSidebarOpen && <span>{item.label}</span>}
-            </Link>
-          ))}
-        </div>
-
-        {/* Toggle Button for Mobile */}
         <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="absolute bottom-4 left-4 p-2 rounded-full bg-gray-700 text-white md:hidden"
+          className="p-2 rounded-md"
         >
-          {isSidebarOpen ? ">" : "<"}
+          {isSidebarOpen ? (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          ) : (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          )}
         </button>
       </div>
 
-      {/* Overlay when Sidebar is Open (Mobile) */}
-      <div
-        className={`md:hidden ${isSidebarOpen ? "block" : "hidden"} fixed inset-0 bg-black opacity-50`}
-        onClick={() => setIsSidebarOpen(false)}
-      ></div>
+      {/* Sidebar and Content Container */}
+      <div className="flex flex-1 relative">
+        {/* Mobile Sidebar */}
+        <div
+          className={`
+            fixed inset-y-0 left-0 z-40 w-64 bg-gray-800 text-white 
+            transform transition-transform duration-300 ease-in-out
+            ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
+            md:static md:translate-x-0 md:block
+            overflow-y-auto
+          `}
+        >
+          {/* Logo Section (Hidden on Desktop) */}
+          <div className="hidden md:flex flex-col items-center gap-2 p-4">
+            <Home className="w-8 h-8" />
+            <h2 className="text-2xl font-bold">TogetherTechs</h2>
+          </div>
+
+          {/* Menu List */}
+          <div className="flex flex-col gap-4 p-4">
+            {menuItems.map((item, index) => (
+              <a
+                key={index}
+                href={item.link}
+                className={`flex items-center gap-4 p-2 text-lg font-semibold rounded-lg transition-all duration-300 
+                  ${
+                    activeMenu === item.label
+                      ? "text-blue-500"
+                      : "hover:bg-gray-700"
+                  }`}
+                onClick={() => {
+                  setActiveMenu(item.label);
+                  setIsSidebarOpen(false); // Close sidebar on mobile after selection
+                }}
+              >
+                {item.icon}
+                <span>{item.label}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Overlay when Mobile Sidebar is Open */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black opacity-50 z-30 md:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        ></div>
+      )}
     </div>
   );
 };
