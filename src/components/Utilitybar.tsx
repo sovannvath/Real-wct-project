@@ -15,8 +15,8 @@ const Utilitybar = () => {
         <li><Link href="/aboutus">About Us</Link></li>
       </ul>
       <div className={styles.authButtons}>
-        <button className={styles.loginButton}>Log In</button>
-        <button className={styles.signupButton}>Sign Up</button>
+        <button className={styles.loginButton}><Link href="/newsPage">Log In</Link></button>
+        <button className={styles.signupButton}><Link href="newsPage">Sign Up</Link></button>
       </div>
     </nav>
     </>
