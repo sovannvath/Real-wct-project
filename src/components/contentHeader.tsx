@@ -29,7 +29,7 @@ const ContentHeader = () => {
         <div className="flex items-center gap-4">
           <button className="hidden md:flex items-center px-3 py-2 bg-gray-800 rounded-lg hover:bg-gray-700">
             <Compass className="w-5 h-5 mr-2" />
-            <span>Explore</span>
+            <span>Create Post</span>
           </button>
           <button className="p-2 bg-gray-800 rounded-full hover:bg-gray-700">
             <Bell className="w-5 h-5 text-yellow-500" />
