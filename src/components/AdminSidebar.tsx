@@ -6,11 +6,8 @@ import {
   BookOpen,
   Star,
   BarChart2,
-  MessageSquare,
   FileText,
-  Users,
-  Search,
-  Award,
+
 } from "lucide-react";
 
 const AdminSidebar = () => {
@@ -127,11 +124,6 @@ const AdminSidebar = () => {
               </a>
             ))}
           </div>
-        </div>
-
-        {/* Main Content Area */}
-        <div className="flex-1 p-4 md:p-8 bg-gray-100">
-          <div>Hello, this is the feed page.</div>
         </div>
       </div>
 
