@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { AppSidebar } from "@/components/app-sidebar";
 import ContentSidebar from "@/components/ContentSidebar";
 
+
 export const metadata: Metadata = {
   title: "Togethertechs",
   description:
@@ -18,6 +19,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <div className="flex">
+          
           {/* Sidebar Component */}
           <ContentSidebar />
           {/* Main Content */}
