@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 const GUEST_ROUTES = ["/login", "/register"];
-const PROTECTED_ROUTES = ["/profile", "/content"];
+const PROTECTED_ROUTES = ["/profile", "/feed"];
 
 export function middleware(request: NextRequest) {
     const user = request.cookies.get("auth-token");
@@ -15,7 +15,7 @@ export function middleware(request: NextRequest) {
 
     if (user && GUEST_ROUTES.includes(currentPath)) {
        
-        return NextResponse.redirect(new URL("/content", request.url));
+        return NextResponse.redirect(new URL("/feed", request.url));
     }
 
     // Allow all other requests

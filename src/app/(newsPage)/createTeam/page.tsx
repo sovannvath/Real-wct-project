@@ -2,8 +2,8 @@ import React from 'react'
 
 const page = () => {
   return (
-    <div>
-      
+    <div className='bg-red-900 text-center text-5xl'>
+     Create team
     </div>
   )
 }

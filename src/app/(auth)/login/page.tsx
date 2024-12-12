@@ -17,8 +17,8 @@ const Login = () => {
         signInWithEmailAndPassword(auth, values.email, values.password)
             .then((response) => {
                 localStorage.setItem('auth-token', response.user.refreshToken);
-                router.push("/newsPage");
-                console.log("Redirecting to content page ")
+                router.push("/feed");
+                console.log("Redirecting to feed page ")
             })
             .catch((e) => {
                 console.log("Login Error:", e.message);

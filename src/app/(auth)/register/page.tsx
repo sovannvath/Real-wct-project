@@ -10,21 +10,34 @@ import { useRouter } from "next/navigation";
 
 const Register = () => {
     const router = useRouter();
-    const { handleSubmit, register, formState: { errors }, reset } = registerValidation();
+    const { handleSubmit, register, formState: { errors } } = registerValidation();
 
     const submitForm = async (values: any) => {
-        console.log("Register form values", values);
+        console.log("Registering user with:", values);
+    
+        if (values.password !== values.cnfPassword) {
+            alert("Passwords do not match");
+            return;
+        }
+    
         createUserWithEmailAndPassword(auth, values.email, values.password)
             .then(() => {
-                alert("User Register Successfully");
-                reset();
-                router.push("/newsPage");  
+                alert("User Registered Successfully");
+                router.push("/feed"); // Redirect to feed
             })
             .catch((e) => {
-                console.log("catch ", e.message);
-                alert("Something went wrong, please try again");
+                console.error("Registration Error:", e.code, e.message);
+    
+                if (e.code === "auth/email-already-in-use") {
+                    alert("This email is already in use. Please use a different email.");
+                } else if (e.code === "auth/weak-password") {
+                    alert("Password is too weak. Please use a stronger password.");
+                } else {
+                    alert("Something went wrong. Please try again.");
+                }
             });
     };
+    
 
     return (
         <div className="h-screen flex justify-center items-center bg-gradient-to-br from-yellow-400/20 via-blue-300 to-purple-400/60">

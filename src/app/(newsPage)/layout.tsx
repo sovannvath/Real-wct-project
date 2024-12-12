@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { AppSidebar } from "@/components/app-sidebar";
 import ContentSidebar from "@/components/ContentSidebar";
+import ContentHeader from "@/components/contentHeader"; // Import the ContentHeader component
 
 export const metadata: Metadata = {
   title: "Togethertechs",
@@ -12,17 +12,20 @@ export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
-  session: any;
 }) {
   return (
     <html lang="en">
-      <body>
-        <div className="flex">
-          {/* Sidebar Component */}
+      <body className="h-screen flex flex-col">
+        {/* Header Component */}
+        <ContentHeader />
+
+        {/* Sidebar and Content Layout */}
+        <div className="flex flex-1">
+          {/* Sidebar */}
           <ContentSidebar />
+
           {/* Main Content */}
-          <main className="flex-1 p-4">
-            {/* The children will render here */}
+          <main className="flex-1 p-4 bg-gray-100 overflow-auto">
             {children}
           </main>
         </div>
