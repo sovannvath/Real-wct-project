@@ -63,7 +63,7 @@ const ContentSidebar = () => {
           >
             {item.icon}
             <span>{item.label}</span>
-          </a>
+          </a>  
         ))}
       </div>
     </div>

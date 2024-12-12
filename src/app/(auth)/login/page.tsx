@@ -1,4 +1,5 @@
-"use client"
+"use client";
+
 import SubmitButton from "@/components/Button";
 import InputField from "@/components/InputFields";
 import { REGISTER_ROUTE } from "@/constants/routes";
@@ -12,59 +13,87 @@ const Login = () => {
     const { handleSubmit, register, formState: { errors } } = loginValidation();
     const router = useRouter();
 
-    const submitForm = (values: any) => {
-        console.log("Form Submitted with values: ", values);
-        signInWithEmailAndPassword(auth, values.email, values.password)
-            .then((response) => {
-                localStorage.setItem('auth-token', response.user.refreshToken);
-                router.push("/feed");
-                console.log("Redirecting to feed page ")
-            })
-            .catch((e) => {
-                console.log("Login Error:", e.message);
+    const submitForm = async (values: any) => {
+        try {
+            // Log submitted values for debugging
+            console.log("Logging in user with values: ", values);
 
-                if (e.code === 'auth/wrong-password') {
+            // Attempt to sign in the user with email and password
+            const response = await signInWithEmailAndPassword(auth, values.email, values.password);
+
+            // Store the token in localStorage for authentication purposes
+            localStorage.setItem("auth-token", response.user.refreshToken);
+
+            // Redirect the user to the feed page upon successful login
+            router.push("/feed");
+            console.log("Redirecting to feed page...");
+        } catch (error: any) {
+            // Handle errors and provide user feedback
+            console.error("Login Error:", error);
+
+            // Display error messages based on Firebase error codes
+            switch (error.code) {
+                case "auth/wrong-password":
                     alert("Incorrect password. Please try again.");
-                } else if (e.code === 'auth/user-not-found') {
+                    break;
+                case "auth/user-not-found":
                     alert("No user found with this email. Please check your email or register.");
-                } else {
-                    alert("Login failed. Please try again.");
-                }
-            });
+                    break;
+                case "auth/invalid-email":
+                    alert("Invalid email format. Please enter a valid email.");
+                    break;
+                case "auth/too-many-requests":
+                    alert("Too many failed login attempts. Please try again later.");
+                    break;
+                default:
+                    alert("Login failed. Please check your credentials and try again.");
+                    break;
+            }
+        }
     };
 
     return (
-        <div className="h-screen flex justify-center items-center bg-gradient-to-br from-yellow-400/20 via-blue-300 to-purple-400/60">
-            <div className="w-1/2 rounded-md bg-white/30 shadow-lg flex justify-between flex-col">
-                <div className="h-28 w-full justify-center flex items-center">
-                    <span className="text-3xl text-black font-mono font-semibold bg-yellow-300 p-3 rounded-lg">Welcome To SignIn</span>
+        <div className="h-screen flex justify-center items-center bg-gradient-to-br from-white to-lightskyblue">
+            <div className="w-full max-w-md rounded-md bg-white/10 shadow-lg flex flex-col p-6 md:p-10">
+                {/* Title */}
+                <div className="mb-6 text-center">
+                    <span className="text-2xl md:text-3xl text-white bg-[lightskyblue] font-mono font-semibold px-4 py-2 rounded-lg shadow">
+                        Welcome To TogetherTech
+                    </span>
                 </div>
-                <form onSubmit={handleSubmit(submitForm)} className="h-full w-1/2 mx-auto">
+                {/* Form */}
+                <form onSubmit={handleSubmit(submitForm)} className="space-y-4">
                     <InputField
                         register={register}
-                        error={errors.email}  // Pass error prop for email
+                        error={errors.email} 
                         type="text"
                         placeholder="Enter Your Email Here..."
                         name="email"
                         label="Email"
                     />
-                    {errors.email && <p>{errors.email.message}</p>} {/* Display validation error */}
+                    {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>} {/* Display validation error */}
 
                     <InputField
                         register={register}
-                        error={errors.password}  // Pass error prop for password
+                        error={errors.password} 
                         type="password"
                         placeholder="Enter Your Password Here..."
                         name="password"
                         label="Password"
                     />
-                    {errors.password && <p>{errors.password.message}</p>} {/* Display validation error */}
+                    {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>} {/* Display validation error */}
 
-                    <SubmitButton label="Submit" />
+                    <SubmitButton label="Log In" />
                 </form>
-                <div className="h-20 mx-auto">
-                    <span className="text-sm text-gray-600">Don't have an account?  
-                        <Link href={REGISTER_ROUTE}><span className="text-blue-500 font-semibold text-md"> Register Here</span></Link>
+                {/* Register Link */}
+                <div className="text-center mt-4">
+                    <span className="text-sm text-gray-300">
+                        Don't have an account?{" "}
+                        <Link href={REGISTER_ROUTE}>
+                            <span className="text-blue-400 font-semibold hover:underline">
+                                Register Here
+                            </span>
+                        </Link>
                     </span>
                 </div>
             </div>

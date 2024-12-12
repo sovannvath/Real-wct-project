@@ -1,7 +1,7 @@
 "use client";
 import SubmitButton from "@/components/Button";
 import InputField from "@/components/InputFields";
-import { LOGIN_ROUTE, PROFILE_ROUTE } from "@/constants/routes";
+import { LOGIN_ROUTE } from "@/constants/routes";
 import { auth } from "@/services/firebase";
 import { registerValidation } from "@/validationSchema/auth";
 import { createUserWithEmailAndPassword } from "firebase/auth";
@@ -14,12 +14,12 @@ const Register = () => {
 
     const submitForm = async (values: any) => {
         console.log("Registering user with:", values);
-    
+
         if (values.password !== values.cnfPassword) {
             alert("Passwords do not match");
             return;
         }
-    
+
         createUserWithEmailAndPassword(auth, values.email, values.password)
             .then(() => {
                 alert("User Registered Successfully");
@@ -27,7 +27,7 @@ const Register = () => {
             })
             .catch((e) => {
                 console.error("Registration Error:", e.code, e.message);
-    
+
                 if (e.code === "auth/email-already-in-use") {
                     alert("This email is already in use. Please use a different email.");
                 } else if (e.code === "auth/weak-password") {
@@ -37,15 +37,18 @@ const Register = () => {
                 }
             });
     };
-    
 
     return (
-        <div className="h-screen flex justify-center items-center bg-gradient-to-br from-yellow-400/20 via-blue-300 to-purple-400/60">
-            <div className="w-1/2 rounded-md bg-white/30 shadow-lg flex justify-between flex-col">
-                <div className="h-28 w-full justify-center flex items-center">
-                    <span className="text-3xl text-black font-mono font-semibold bg-yellow-300 p-3 rounded-lg">Welcome To Register</span>
+        <div className="h-screen flex justify-center items-center bg-gradient-to-br from-[#1d2531] to-[#183c45]">
+            <div className="w-full max-w-md rounded-md bg-white/10 shadow-lg flex flex-col p-6 md:p-10">
+                {/* Title */}
+                <div className="mb-6 text-center">
+                    <span className="text-2xl md:text-3xl text-white font-mono font-semibold bg-blue-500 px-4 py-2 rounded-lg shadow">
+                        Welcome To Register
+                    </span>
                 </div>
-                <form onSubmit={handleSubmit(submitForm)} className="h-full w-1/2 mx-auto">
+                {/* Form */}
+                <form onSubmit={handleSubmit(submitForm)} className="space-y-4">
                     <InputField
                         register={register}
                         error={errors.email}
@@ -54,6 +57,8 @@ const Register = () => {
                         name="email"
                         label="Email"
                     />
+                    {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>} {/* Validation error */}
+
                     <InputField
                         register={register}
                         error={errors.password}
@@ -62,19 +67,29 @@ const Register = () => {
                         name="password"
                         label="Password"
                     />
+                    {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>} {/* Validation error */}
+
                     <InputField
                         register={register}
                         error={errors.cnfPassword}
                         type="password"
-                        placeholder="Enter Your Confirm Password Here..."
+                        placeholder="Confirm Your Password..."
                         name="cnfPassword"
                         label="Confirm Password"
                     />
-                    <SubmitButton label="Submit" />
+                    {errors.cnfPassword && <p className="text-sm text-red-500">{errors.cnfPassword.message}</p>} {/* Validation error */}
+
+                    <SubmitButton label="Register" />
                 </form>
-                <div className="h-20 mx-auto">
-                    <span className="text-sm text-gray-600">Already have an account?  
-                        <Link href={LOGIN_ROUTE}><span className="text-blue-500 font-semibold text-md"> Login Here</span></Link>
+                {/* Login Link */}
+                <div className="text-center mt-4">
+                    <span className="text-sm text-gray-300">
+                        Already have an account?{" "}
+                        <Link href={LOGIN_ROUTE}>
+                            <span className="text-blue-400 font-semibold hover:underline">
+                                Login Here
+                            </span>
+                        </Link>
                     </span>
                 </div>
             </div>
