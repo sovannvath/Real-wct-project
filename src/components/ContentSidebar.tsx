@@ -17,17 +17,17 @@ const ContentSidebar = () => {
   const [activeMenu, setActiveMenu] = useState("Feed");
 
   const menuItems = [
-    { label: "Feed", icon: <Home className="w-5 h-5" />, link: "/feed" },
-    { label: "Bookmark", icon: <BookOpen className="w-5 h-5" />, link: "/bookmark" },
-    { label: "Create New Team", icon: <Users className="w-5 h-5" />, link: "/createTeam" },
-    { label: "Favorite", icon: <Star className="w-5 h-5" />, link: "/favorite" },
-    { label: "Categories", icon: <FileText className="w-5 h-5" />, link: "/category" },
-    { label: "Discussion", icon: <MessageSquare className="w-5 h-5" />, link: "/discussion" },
-    { label: "Find Team", icon: <Users className="w-5 h-5" />, link: "/findTeam" },
-    { label: "Feedback", icon: <MessageSquare className="w-5 h-5" />, link: "/feedback" },
-    { label: "History", icon: <BarChart2 className="w-5 h-5" />, link: "/history" },
-    { label: "Custom Feed", icon: <Search className="w-5 h-5" />, link: "/customFeed" },
-    { label: "Leaderboard", icon: <Award className="w-5 h-5" />, link: "/leaderboard" },
+    { label: "Feed", icon: <Home className="w-5 h-5" />, link: "/newsPage/feed" },
+    { label: "Bookmark", icon: <BookOpen className="w-5 h-5" />, link: "/newsPage/bookmark" },
+    { label: "Create New Team", icon: <Users className="w-5 h-5" />, link: "/newsPage/createTeam" },
+    { label: "Favorite", icon: <Star className="w-5 h-5" />, link: "/newsPage/favorite" },
+    { label: "Categories", icon: <FileText className="w-5 h-5" />, link: "/newsPage/category" },
+    { label: "Discussion", icon: <MessageSquare className="w-5 h-5" />, link: "/newsPage/discussion" },
+    { label: "Find Team", icon: <Users className="w-5 h-5" />, link: "/newsPage/findTeam" },
+    { label: "Feedback", icon: <MessageSquare className="w-5 h-5" />, link: "/newsPage/feedback" },
+    { label: "History", icon: <BarChart2 className="w-5 h-5" />, link: "/newsPage/history" },
+    { label: "Custom Feed", icon: <Search className="w-5 h-5" />, link: "/newsPage/customFeed" },
+    { label: "Leaderboard", icon: <Award className="w-5 h-5" />, link: "/newsPage/leaderboard" },
   ];
 
   return (

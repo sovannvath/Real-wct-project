@@ -26,7 +26,7 @@ const ContentSidebar = () => {
   ];  
 
   return (
-    <div className="flex h-screen">x
+    <div className="flex h-screen">
       {/* Sidebar for Desktop */}
       <div className="hidden md:block w-64 bg-gray-800 text-white sticky top-0 h-screen">
         <nav className="p-4 space-y-2">
