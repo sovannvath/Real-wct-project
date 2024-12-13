@@ -1,4 +1,3 @@
-// src/app/dashboard/page.tsx
 "use client";
 
 import { Globe } from "lucide-react";
@@ -13,11 +12,37 @@ import {
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { auth } from "@/app/services/firebase";
 
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const Dashboard = () => {
+  const router = useRouter();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        // If user is not authenticated, redirect to login page
+        router.push("/auth/login");
+      }
+    });
+
+    return () => unsubscribe(); // Cleanup on unmount
+  }, [router]);
+
+  // Handle user logout
+  const handleLogout = async () => {
+    try {
+      await signOut(auth); // Sign out the user
+      router.push("/auth/login"); // Redirect to the login page
+    } catch (error) {
+      console.error("Error during sign out:", error);
+    }
+  };
+
   // Bar chart data and options
   const barChartData = {
     labels: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
@@ -43,12 +68,19 @@ const Dashboard = () => {
     },
   };
 
-  useEffect(() => {
-    // Any initialization or effects related to the chart can go here if needed
-  }, []);
-
   return (
     <div className="h-[100vh] w-full p-6 flex flex-col gap-6">
+      {/* Header Section */}
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
+        <button
+          onClick={handleLogout}
+          className="px-4 py-2 bg-red-500 text-white rounded shadow-md hover:bg-red-600 transition"
+        >
+          Logout
+        </button>
+      </div>
+
       {/* Card Section */}
       <div className="flex flex-wrap gap-6 h-[30%]">
         {/* Card for New Users */}

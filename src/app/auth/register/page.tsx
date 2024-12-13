@@ -37,7 +37,7 @@ const RegisterForm = () => {
 
       // Redirect to the login page
       setTimeout(() => {
-        router.push("/login");
+        router.push("/auth/login");
       }, 2000);
     } catch (error: any) {
       setMessage(`Error: ${error.message}`);
@@ -57,9 +57,9 @@ const RegisterForm = () => {
 
       setMessage(`Google account registered successfully! Redirecting...`);
 
-      // Redirect to the dashboard or desired page
+      
       setTimeout(() => {
-        router.push("newsPage/feed"); // Adjust target path as necessary
+        router.push("/feed"); // Adjust target path as necessary
       }, 2000);
     } catch (error: any) {
       setMessage(`Error: ${error.message}`);
@@ -128,7 +128,7 @@ const RegisterForm = () => {
         <div className="mt-4">
           <button
             onClick={handleGoogleRegister}
-            className="w-full px-4 py-2 text-white bg-red-500 rounded-md focus:outline-none focus:ring focus:ring-red-300 hover:bg-red-600"
+            className="w-full px-4 py-2 text-white border-black bg-red-600 rounded-md focus:outline-none focus:ring focus:ring-red-300 hover:bg-slate-500 hover:text-white"
             disabled={isLoading}
           >
             {isLoading ? "Connecting to Google..." : "Register with Google"}
@@ -145,7 +145,7 @@ const RegisterForm = () => {
         )}
         <p className="mt-4 text-center text-sm text-gray-600">
           Already have an account?{" "}
-          <a href="/login" className="text-blue-600 hover:underline">
+          <a href="/auth/login" className="text-blue-600 hover:underline">
             Log In
           </a>
         </p>

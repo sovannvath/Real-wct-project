@@ -4,6 +4,7 @@ import { useState } from "react";
 import { auth } from "@/app/services/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "next/navigation";
+import { doc, setDoc, getFirestore } from "firebase/firestore";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -11,6 +12,7 @@ const LoginForm = () => {
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const db = getFirestore(); // Initialize Firestore
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -22,16 +24,20 @@ const LoginForm = () => {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
+      // Save user information in Firestore
+      const userDocRef = doc(db, "users", user.uid); // Users collection
+      await setDoc(userDocRef, {
+        uid: user.uid,
+        email: user.email,
+        role: email === "admin123@gmail.com" ? "admin" : "user", // Add role dynamically
+      });
+
       setMessage(`Login successful! Redirecting...`);
       setEmail("");
       setPassword("");
 
-      // Check if the user is an admin
-      if (email === "admin123@gmail.com" && password === "admin123") {
-        router.push("/dashboard"); // Redirect admin user to /admin
-      } else {
-        router.push("/feed"); // Redirect other users to /feed
-      }
+      // Redirect to admin dashboard
+      router.push("/dashboard");
     } catch (error: any) {
       setMessage(`Your email or password is incorrect.`);
     } finally {
@@ -40,8 +46,8 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md p-8 bg-white shadow-md rounded-md">
+    <div className="flex justify-center items-center min-h-screen bg-white">
+      <div className="w-full max-w-md p-8 bg-white shadow-lg rounded-md border border-gray-300">
         <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">Log In</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -54,7 +60,8 @@ const LoginForm = () => {
               name="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300"
+              className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300 bg-gray-50 text-gray-800 placeholder-gray-400"
+              placeholder="Enter your email"
               required
             />
           </div>
@@ -68,7 +75,8 @@ const LoginForm = () => {
               name="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300"
+              className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300 bg-gray-50 text-gray-800 placeholder-gray-400"
+              placeholder="Enter your password"
               required
             />
           </div>

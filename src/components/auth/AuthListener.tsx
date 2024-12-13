@@ -3,44 +3,45 @@
 import { useEffect, useState } from "react";
 import { auth } from "@/app/services/firebase";
 import { onAuthStateChanged } from "firebase/auth";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation"; 
 
 const AuthListener = () => {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
   const router = useRouter();
+  const pathname = usePathname(); // Get the current pathname
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
         setUser(currentUser); 
         console.log("User is authenticated:", currentUser); 
+
         const email = currentUser.email?.toLowerCase();
 
-        // Redirect based on whether the user is admin or regular user
-        if (email === "admin123@gmail.com") {
-          router.push("/dashboard"); 
-        } else {
-          router.push("/feed"); // Redirect regular user to feed
+        // If user is already authenticated, redirect them to feed or dashboard
+        if (pathname === "/auth/login") {
+          if (email === "admin123@gmail.com") {
+            router.push("/dashboard");
+          } else {
+            router.push("/feed");
+          }
         }
       } else {
-        setUser(null); // No user, so set user to null
+        setUser(null); 
         console.log("User is not authenticated."); 
-        router.push("/login"); 
       }
       setLoading(false); // Stop loading state once checked
     });
 
-    return () => unsubscribe(); // Cleanup the listener when component unmounts
-  }, [router]);
+    return () => unsubscribe(); 
+  }, [pathname, router]); // Add pathname to dependencies
 
-  // While loading (checking auth state), show a loading message or spinner
   if (loading) {
     return <div>Loading...</div>;
   }
 
-  // No need to render anything, just log in the console
-  return null;
+  return null; // Do not render anything
 };
 
 export default AuthListener;
