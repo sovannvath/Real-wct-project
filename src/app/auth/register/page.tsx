@@ -59,7 +59,7 @@ const RegisterForm = () => {
 
       
       setTimeout(() => {
-        router.push("/feed"); // Adjust target path as necessary
+        router.push("/feed"); 
       }, 2000);
     } catch (error: any) {
       setMessage(`Error: ${error.message}`);

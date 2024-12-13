@@ -1,25 +1,35 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
-import { auth } from "@/app/services/firebase";
-import { onAuthStateChanged } from "firebase/auth";
-import { useRouter, usePathname } from "next/navigation"; 
+import { auth } from "@/app/services/firebase"; 
+import { onAuthStateChanged, User } from "firebase/auth"; 
+import { useRouter, usePathname } from "next/navigation";
+import { storeUserInFirestore } from "@/utils/firebaseUtils"; 
 
 const AuthListener = () => {
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null); // Type the user state
   const router = useRouter();
-  const pathname = usePathname(); // Get the current pathname
+  const pathname = usePathname(); 
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
-        setUser(currentUser); 
-        console.log("User is authenticated:", currentUser); 
+        setUser(currentUser);
+        console.log("User is authenticated:", currentUser);
 
         const email = currentUser.email?.toLowerCase();
 
-        // If user is already authenticated, redirect them to feed or dashboard
+        // Store user data in Firestore when authenticated
+        storeUserInFirestore({
+          uid: currentUser.uid,
+          email: currentUser.email,
+          displayName: currentUser.displayName,
+          photoURL: currentUser.photoURL,
+        });
+
+        // Redirect based on user role
         if (pathname === "/auth/login") {
           if (email === "admin123@gmail.com") {
             router.push("/dashboard");
@@ -28,20 +38,20 @@ const AuthListener = () => {
           }
         }
       } else {
-        setUser(null); 
-        console.log("User is not authenticated."); 
+        setUser(null);
+        console.log("User is not authenticated.");
       }
       setLoading(false); // Stop loading state once checked
     });
 
     return () => unsubscribe(); 
-  }, [pathname, router]); // Add pathname to dependencies
+  }, [pathname, router]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>Loading...</div>; 
   }
 
-  return null; // Do not render anything
+  return null; // No UI is rendered by this component
 };
 
 export default AuthListener;

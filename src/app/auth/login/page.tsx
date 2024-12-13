@@ -2,9 +2,13 @@
 
 import { useState } from "react";
 import { auth } from "@/app/services/firebase";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import {
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+} from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { doc, setDoc, getFirestore } from "firebase/firestore";
+import { doc, setDoc, getFirestore, serverTimestamp } from "firebase/firestore";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -12,7 +16,7 @@ const LoginForm = () => {
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const db = getFirestore(); // Initialize Firestore
+  const db = getFirestore(); 
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -20,26 +24,57 @@ const LoginForm = () => {
     setMessage("");
 
     try {
-      // Sign in the user with Firebase
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // Save user information in Firestore
-      const userDocRef = doc(db, "users", user.uid); // Users collection
+      const userDocRef = doc(db, "users", user.uid); // Use consistent collection name
       await setDoc(userDocRef, {
         uid: user.uid,
         email: user.email,
-        role: email === "admin123@gmail.com" ? "admin" : "user", // Add role dynamically
+        role: email === "admin123@gmail.com" ? "admin" : "user",
+        createdAt: serverTimestamp(),
       });
 
-      setMessage(`Login successful! Redirecting...`);
+      setMessage("Login successful! Redirecting...");
       setEmail("");
       setPassword("");
 
-      // Redirect to admin dashboard
-      router.push("/dashboard");
+      if (email === "admin123@gmail.com") {
+        router.push("/dashboard");
+      } else {
+        router.push("/feed");
+      }
     } catch (error: any) {
-      setMessage(`Your email or password is incorrect.`);
+      setMessage("Your email or password is incorrect.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleRegister = async () => {
+    setIsLoading(true);
+    setMessage("");
+
+    const provider = new GoogleAuthProvider(); // Add the provider for Google login
+
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      const userDocRef = doc(db, "users", user.uid);
+      await setDoc(userDocRef, {
+        uid: user.uid,
+        email: user.email,
+        name: user.displayName || "No Name",
+        photoURL: user.photoURL || "",
+        role: "user", // Default role for Google users
+        createdAt: serverTimestamp(),
+      });
+
+      setMessage("Google account registered successfully! Redirecting...");
+      router.push("/feed");
+    } catch (error: any) {
+      setMessage(`Error: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
@@ -48,7 +83,9 @@ const LoginForm = () => {
   return (
     <div className="flex justify-center items-center min-h-screen bg-white">
       <div className="w-full max-w-md p-8 bg-white shadow-lg rounded-md border border-gray-300">
-        <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">Log In</h2>
+        <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">
+          Log In
+        </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">
@@ -90,6 +127,15 @@ const LoginForm = () => {
             {isLoading ? "Logging in..." : "Log In"}
           </button>
         </form>
+        <div className="mt-4">
+          <button
+            onClick={handleGoogleRegister}
+            className="w-full px-4 py-2 text-white bg-red-600 rounded-md focus:outline-none focus:ring focus:ring-red-300 hover:bg-red-700"
+            disabled={isLoading}
+          >
+            {isLoading ? "Connecting to Google..." : "Register with Google"}
+          </button>
+        </div>
         {message && (
           <p
             className={`mt-4 text-center ${
