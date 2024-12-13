@@ -6,7 +6,7 @@ import { GiPuzzle } from "react-icons/gi";
 
 export default function Feedback() {
   return (
-    <div className="flex flex-col items-center text-white min-h-screen py-10 mt-10">
+    <div className="flex flex-col items-center text-white min-h-screen py-10  bg-black">
       <div className="text-3xl font-bold">Provide us the way to improve our quality of Website </div>
       <h1>Down below is the way we can get what's is the weakness of our website from the user themself please provide us and we'll improve</h1>
       {/* Feedback */}

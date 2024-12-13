@@ -1,64 +1,45 @@
-import { FaUserCircle } from "react-icons/fa";
+import React from "react";
+import { FaUserCircle, FaRegCommentDots, FaBookmark } from "react-icons/fa";
 import { MdOutlineMoreVert } from "react-icons/md";
 import { AiFillLike } from "react-icons/ai";
-import { FaRegCommentDots } from "react-icons/fa";
 import { FcLike } from "react-icons/fc";
-import { FaBookmark } from "react-icons/fa";
 
-export default function Card() {
+interface CardProps {
+  title: string;
+  description: string;
+  image: string;
+  timestamp: string;
+}
+
+const Card: React.FC<CardProps> = ({ title, description, image, timestamp }) => {
   return (
-    <div className="bg-gray-900 text-white p-5 rounded-xl shadow-lg w-72 m-5 m-5">
+    <div className="bg-gray-900 text-white p-5 rounded-xl shadow-lg">
       <div className="flex justify-between items-center mb-4">
-        <div className="flex items-center space-x-2">
-          <button className="user">
-            <FaUserCircle className="w-6 h-6" />
-          </button>
-        </div>
-        <button className="bg-teal-500 text-sm px-3 py-1 rounded-lg hover:bg-teal-600 rounded-full ml-auto">
-          View Post
-        </button>
-
-        <button><MdOutlineMoreVert className="w-6 h-6" /></button>
+        <FaUserCircle className="w-8 h-8 text-teal-500" />
+        <MdOutlineMoreVert className="w-6 h-6 text-gray-400 cursor-pointer hover:text-gray-200" />
       </div>
-
-      <div className="mb-4">
-        <h2 className="text-lg font-semibold">Alien Has come to our planet.</h2>
-        <p className="text-sm text-gray-400">Date: 01/Sep/2021</p>
-      </div>
-
       <div className="mb-4">
         <img
-          src="/image/card_pic.jpg"
-          alt="Post"
-          className="rounded-lg w-full"
+          src={image}
+          alt={title}
+          className="rounded-lg w-full object-cover"
         />
       </div>
-
-      {/* Reaction Section */}
-      <div className="flex justify-between items-center text-gray-400 text-sm">
-        <div className="flex items-center space-x-2">
-          <div className="flex items-center">
-            <AiFillLike className="w-6 h-6" />
-            <span className="ml-1 w-6 h-6">1k</span>
-          </div>
-          <div className="flex items-center">
-            <span className="ml-8 w-6 h-6">21</span>
-          </div>
+      <h2 className="text-lg font-semibold">{title}</h2>
+      <p className="text-sm text-gray-400 mb-2">{timestamp}</p>
+      <p className="text-sm">{description}</p>
+      <div className="flex justify-between items-center text-gray-400 text-sm mt-4">
+        <div className="flex items-center space-x-4">
+          <AiFillLike className="w-5 h-5 text-green-500" />
+          <FaRegCommentDots className="w-5 h-5 text-blue-400" />
         </div>
-        <div className="flex space-x-2">
-          <div className="flex items-center">
-          <FaRegCommentDots  className="w-6 h-6" />
-          </div>
-          <div className="flex items-center">
-          <FcLike  className="w-6 h-6"/>
-          </div>
-          <div className="flex items-center">
-          <FaBookmark  className="w-6 h-4" />
-          </div>
+        <div className="flex space-x-4">
+          <FcLike className="w-5 h-5" />
+          <FaBookmark className="w-5 h-5 text-yellow-500" />
         </div>
       </div>
     </div>
-
-
   );
-}
+};
+
+export default Card;

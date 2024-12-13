@@ -16,14 +16,14 @@ export default function Home() {
           <Link href="/" className={styles.active}>
             English
           </Link>{" "}
-          | <Link href="#">Khmer</Link>
+          | <Link href="/">Khmer</Link>
         </div>
         <ul className={styles.navLinks}>
           <li>
-            <Link href="/">Help/FAQ</Link>
+            <Link href="/help">Help/FAQ</Link>
           </li>
           <li>
-            <Link href="/">Contact Us</Link>
+            <Link href="/contactus">Contact Us</Link>
           </li>
           <li>
             <Link href="/aboutus">About Us</Link>

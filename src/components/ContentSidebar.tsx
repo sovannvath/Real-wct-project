@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { usePathname } from "next/navigation"; // Import usePathname
 import {
   Home,
   BookOpen,
@@ -13,8 +14,9 @@ import {
   Award,
 } from "lucide-react";
 
-const ContentSidebar = () => {
-  const [activeMenu, setActiveMenu] = useState("Feed");
+const Sidebar = () => {
+  const [activeMenu, setActiveMenu] = useState("");
+  const pathname = usePathname(); // Get current route
 
   const menuItems = [
     { label: "Feed", icon: <Home className="w-5 h-5" />, link: "/feed" },
@@ -30,44 +32,30 @@ const ContentSidebar = () => {
     { label: "Leaderboard", icon: <Award className="w-5 h-5" />, link: "/leaderboard" },
   ];
 
-  return (
-    <div className="flex h-screen">
-      {/* Sidebar for Desktop */}
-      <div className="hidden md:block w-64 bg-[#111827] border-white text-white sticky top-0 h-screen">
-        <nav className="p-4 space-y-2">
-          {menuItems.map((item, index) => (
-            <a
-              key={index}
-              href={item.link}
-              className={`flex items-center gap-4 p-2 rounded-md text-sm font-medium transition-all 
-                ${activeMenu === item.label ? "bg-blue-500 text-white" : "hover:bg-gray-700"}`}
-              onClick={() => setActiveMenu(item.label)}
-            >
-              {item.icon}
-              {item.label}
-            </a>
-          ))}
-        </nav>
-      </div>
+  useEffect(() => {
+    const currentMenu = menuItems.find((item) => pathname === item.link); // Match exact route
+    if (currentMenu) {
+      setActiveMenu(currentMenu.label);
+    }
+  }, [pathname]); // Trigger when pathname changes
 
-      {/* Bottom Navigation for Mobile */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-gray-800 text-white md:hidden flex justify-around items-center h-16 shadow-lg">
-        {menuItems.slice(0, 5).map((item, index) => (
+  return (
+    <div className="hidden md:block w-64 bg-[#111827] text-white sticky top-0 h-screen">
+      <nav className="p-4 space-y-2">
+        {menuItems.map((item, index) => (
           <a
             key={index}
             href={item.link}
-            className={`flex flex-col items-center justify-center gap-1 text-xs ${
-              activeMenu === item.label ? "text-blue-400" : "text-gray-300"
-            }`}
-            onClick={() => setActiveMenu(item.label)}
+            className={`flex items-center gap-4 p-2 rounded-md text-sm font-medium transition-all 
+              ${activeMenu === item.label ? "bg-blue-500 text-white" : "hover:bg-gray-700"}`}
           >
             {item.icon}
-            <span>{item.label}</span>
-          </a>  
+            {item.label}
+          </a>
         ))}
-      </div>
+      </nav>
     </div>
   );
 };
 
-export default ContentSidebar;
+export default Sidebar;
