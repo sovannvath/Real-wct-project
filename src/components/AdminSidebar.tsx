@@ -13,7 +13,7 @@ import {
   Award,
 } from "lucide-react";
 
-const ContentSidebar = () => {
+const AdminSidebar = () => {
   const [activeMenu, setActiveMenu] = useState("admin");
 
   const menuItems = [
@@ -28,7 +28,7 @@ const ContentSidebar = () => {
   return (
     <div className="flex h-screen">
       {/* Sidebar for Desktop */}
-      <div className="hidden md:block w-64 bg-gray-800 text-white sticky top-0 h-screen">
+      <div className="hidden md:block w-64 bg-[#141414] text-white sticky top-0 h-screen">
         <nav className="p-4 space-y-2">
           {menuItems.map((item, index) => (
             <a
@@ -65,4 +65,4 @@ const ContentSidebar = () => {
   );
 };
 
-export default ContentSidebar;
+export default AdminSidebar;

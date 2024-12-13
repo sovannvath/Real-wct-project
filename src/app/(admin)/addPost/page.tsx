@@ -1,8 +1,10 @@
+"use client"
+
 import React, { useState, useEffect } from "react";
 import axios, { AxiosError } from "axios";
 import { setDoc, doc } from "firebase/firestore";
-import { db } from "/home/vath/wct-togethertechs/src/app/services/firebase"; 
-import TechnologyData from "/home/vath/wct-togethertechs/src/app/Data/page";
+import { db } from "@/app/services/firebase";
+import TechnologyData from "@/app/Data/page"; // Ensure this path is correct
 
 type FormDataType = {
   title: string;
@@ -12,7 +14,7 @@ type FormDataType = {
   techList?: string[];
 };
 
-const AddProjectForm: React.FC = () => {
+const AdminPostForm: React.FC = () => {
   const [techList, setTechList] = useState<string[]>([]);
   const [formData, setFormData] = useState<FormDataType>({
     title: "",
@@ -23,25 +25,20 @@ const AddProjectForm: React.FC = () => {
   });
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-  
+
     if (
       name === "file" &&
       e.target instanceof HTMLInputElement &&
       e.target.files
     ) {
-      console.log(`Target Input Name: ${name}, File Selected: ${e.target.files[0].name}`);
       setFormData({ ...formData, file: e.target.files[0] });
     } else {
-      console.log(`Target Input Name: ${name}, Value: ${value}`);
       setFormData({ ...formData, [name]: value });
     }
   };
-  
-
-  
 
   const uploadToImageKit = async (file: File) => {
     const privateKey = process.env.NEXT_PUBLIC_IMAGEKIT_PRIVATE_API_KEY;
@@ -51,8 +48,8 @@ const AddProjectForm: React.FC = () => {
     }
 
     const formDataToUpload = new FormData();
-    formDataToUpload.append("file", file); // Actual file binary
-    formDataToUpload.append("fileName", file.name); // File name
+    formDataToUpload.append("file", file);
+    formDataToUpload.append("fileName", file.name);
 
     try {
       const response = await axios.post(
@@ -60,14 +57,13 @@ const AddProjectForm: React.FC = () => {
         formDataToUpload,
         {
           headers: {
-            Authorization: `Basic ${btoa(privateKey + ":")}`, // Securely encode key
+            Authorization: `Basic ${btoa(privateKey + ":")}`,
           },
         }
       );
 
       if (response.data && response.data.url) {
-        console.log("Image uploaded successfully:", response.data.url);
-        return response.data.url; // Return the URL of the uploaded image
+        return response.data.url;
       } else {
         throw new Error("Image upload failed");
       }
@@ -84,22 +80,20 @@ const AddProjectForm: React.FC = () => {
     try {
       let imageUrl = null;
 
-      // Upload file to ImageKit if a file is selected
       if (formData.file) {
         imageUrl = await uploadToImageKit(formData.file);
       }
 
-      // Save form data to Firestore
-      await setDoc(doc(db, "projects", Date.now().toString()), {
+      await setDoc(doc(db, "adminPosts", Date.now().toString()), {
         title: formData.title,
         description: formData.description,
         url: formData.url,
         techList: formData.techList,
-        imageUrl: imageUrl, 
-        timestamp: new Date(), 
+        imageUrl: imageUrl,
+        timestamp: new Date(),
       });
 
-      console.log("Document successfully written!");
+      console.log("Admin post successfully created!");
 
       setFormData({
         title: "",
@@ -132,11 +126,11 @@ const AddProjectForm: React.FC = () => {
   }, [techList]);
 
   return (
-    <div>
-      <h2 className="text-xl font-bold mb-4">Add Project</h2>
+    <div className="bg-[#141414] p-6 rounded-lg shadow-md">
+      <h2 className="text-2xl font-bold text-[#105b69] mb-4">Create Admin Post</h2>
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2" htmlFor="title">
+          <label className="block text-white font-medium mb-2" htmlFor="title">
             Title
           </label>
           <input
@@ -145,13 +139,13 @@ const AddProjectForm: React.FC = () => {
             name="title"
             value={formData.title}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border border-[#105b69] rounded-md p-2 bg-[#141414] text-white focus:outline-none focus:ring-2 focus:ring-[#105b69]"
             placeholder="Enter title"
             required
           />
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2" htmlFor="description">
+          <label className="block text-white font-medium mb-2" htmlFor="description">
             Description
           </label>
           <textarea
@@ -159,13 +153,13 @@ const AddProjectForm: React.FC = () => {
             name="description"
             value={formData.description}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border border-[#105b69] rounded-md p-2 bg-[#141414] text-white focus:outline-none focus:ring-2 focus:ring-[#105b69]"
             placeholder="Write description here"
             required
           ></textarea>
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2" htmlFor="url">
+          <label className="block text-white font-medium mb-2" htmlFor="url">
             URL
           </label>
           <input
@@ -174,13 +168,13 @@ const AddProjectForm: React.FC = () => {
             name="url"
             value={formData.url}
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border border-[#105b69] rounded-md p-2 bg-[#141414] text-white focus:outline-none focus:ring-2 focus:ring-[#105b69]"
             placeholder="Enter URL"
             required
           />
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">
+          <label className="block text-white font-medium mb-2">
             Select Technologies
           </label>
           <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
@@ -190,9 +184,9 @@ const AddProjectForm: React.FC = () => {
                   id={`tech-${item.id}`}
                   type="checkbox"
                   onChange={(e) => onTechSelect(item.name, e.target.checked)}
-                  className="w-4 h-4"
+                  className="w-4 h-4 text-[#105b69] bg-[#141414] border-[#105b69] focus:ring-[#105b69]"
                 />
-                <label htmlFor={`tech-${item.id}`} className="text-sm">
+                <label htmlFor={`tech-${item.id}`} className="text-white text-sm">
                   {item.name}
                 </label>
               </div>
@@ -200,7 +194,7 @@ const AddProjectForm: React.FC = () => {
           </div>
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2" htmlFor="file">
+          <label className="block text-white font-medium mb-2" htmlFor="file">
             Upload File
           </label>
           <input
@@ -208,12 +202,12 @@ const AddProjectForm: React.FC = () => {
             id="file"
             name="file"
             onChange={handleChange}
-            className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border border-[#105b69] rounded-md p-2 bg-[#141414] text-white focus:outline-none focus:ring-2 focus:ring-[#105b69]"
           />
         </div>
         <button
           type="submit"
-          className="w-full bg-[#111827] text-white font-bold py-2 px-4 rounded-md hover:bg-white hover:text-black transition duration-300"
+          className="w-full bg-[#105b69] text-white font-bold py-2 px-4 rounded-md hover:bg-white hover:text-[#105b69] transition duration-300"
         >
           Submit
         </button>
@@ -222,4 +216,4 @@ const AddProjectForm: React.FC = () => {
   );
 };
 
-export default AddProjectForm;
+export default AdminPostForm;

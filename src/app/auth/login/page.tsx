@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { auth } from "@/app/services/firebase"; // Adjust path to your Firebase config file
+import { auth } from "@/app/services/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "next/navigation";
 
@@ -22,19 +22,13 @@ const LoginForm = () => {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // Get the Firebase authentication token
-      const token = await user.getIdToken();
-
-      // Set the token in a cookie
-      document.cookie = `firebase-auth-token=${token}; path=/; secure; HttpOnly`;
-
       setMessage(`Login successful! Redirecting...`);
       setEmail("");
       setPassword("");
 
       // Check if the user is an admin
       if (email === "admin123@gmail.com" && password === "admin123") {
-        router.push("/admin"); // Redirect admin user to /admin
+        router.push("/dashboard"); // Redirect admin user to /admin
       } else {
         router.push("/feed"); // Redirect other users to /feed
       }
@@ -99,7 +93,7 @@ const LoginForm = () => {
         )}
         <p className="mt-4 text-center text-sm text-gray-600">
           Don't have an account?{" "}
-          <a href="/register" className="text-blue-600 hover:underline">
+          <a href="/auth/register" className="text-blue-600 hover:underline">
             Register
           </a>
         </p>

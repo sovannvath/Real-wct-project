@@ -26,13 +26,13 @@ const Navbar = () => {
           <Link href="/" className="px-4 py-2 bg-teal-600 hover:bg-teal-700 rounded-lg">
             Home
           </Link>
-          <Link href="/techs" className="px-4 py-2 bg-teal-600 hover:bg-teal-700 rounded-lg">
+          <Link href="/newsPage/feed" className="px-4 py-2 bg-teal-600 hover:bg-teal-700 rounded-lg">
             Techs
           </Link>
-          <Link href="/trending" className="px-4 py-2 bg-teal-600 hover:bg-teal-700 rounded-lg">
+          <Link href="newsPage/feed" className="px-4 py-2 bg-teal-600 hover:bg-teal-700 rounded-lg">
             Trending
           </Link>
-          <Link href="/community" className="px-4 py-2 bg-teal-600 hover:bg-teal-700 rounded-lg">
+          <Link href="/newsPage/feed" className="px-4 py-2 bg-teal-600 hover:bg-teal-700 rounded-lg">
             Community
           </Link>
         </div>
@@ -40,7 +40,7 @@ const Navbar = () => {
         {/* Start Reading Button (Desktop) */}
         <div className="hidden md:block h-[2em]">
   <Link
-    href="/start-reading"
+    href="/feed"
     className="flex items-center justify-center px-4 py-2 border border-teal-400 text-white hover:bg-teal-400 hover:text-gray-900 rounded transition bg-[#199399] space-x-2"
   >
     <span>Start Reading</span>
@@ -80,25 +80,25 @@ const Navbar = () => {
             Home
           </Link>
           <Link
-            href="/techs"
+            href="/feed"
             className="block px-4 py-2 hover:bg-teal-600 transition"
           >
             Techs
           </Link>
           <Link
-            href="/trending"
+            href="/feed"
             className="block px-4 py-2 hover:bg-teal-600 transition"
           >
             Trending
           </Link>
           <Link
-            href="/community"
+            href="/feed"
             className="block px-4 py-2 hover:bg-teal-600 transition"
           >
             Community
           </Link>
           <Link
-            href="/start-reading"
+            href="/feed"
             className="block px-4 py-2 hover:bg-teal-600 transition"
           >
             Start Reading 

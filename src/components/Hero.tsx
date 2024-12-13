@@ -18,7 +18,7 @@ const Hero = () => {
     latest in technology.
   </p>
   <Link
-    href="/start-reading"
+    href="/feed"
     className="flex items-center justify-center px-6 py-3 bg-teal-500 hover:bg-teal-400 text-white text-lg font-medium rounded-lg shadow-lg transition-all duration-200"
   >
     Start Reading{" "}

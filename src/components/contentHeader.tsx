@@ -1,13 +1,28 @@
 "use client";
 
-import React, { useState } from "react";
-import { Search, Bell, User, Compass , Flame} from "lucide-react";
-import AddProjectForm from "./form/addprojectform"; 
+import React, { useState, useEffect } from "react";
+import { Search, Bell, User, Compass, Flame } from "lucide-react";
+import AddProjectForm from "./form/addprojectform";
+import { auth } from "@/app/services/firebase"; 
+import { useRouter } from "next/navigation" ;
 
 const ContentHeader = () => {
   const [isModalOpen, setModalOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
   const handleOpenModal = () => setModalOpen(true);
   const handleCloseModal = () => setModalOpen(false);
+  const router = useRouter() ; 
+
+  const handleClickOnProfilePage = () => {
+     router.push("/profile")  ;
+  }
+
+  useEffect(() => {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      setUser(currentUser); 
+    }
+  }, []);
 
   return (
     <>
@@ -46,21 +61,24 @@ const ContentHeader = () => {
             <button className="p-2 bg-gray-800 rounded-full hover:bg-gray-700">
               <Flame className="w-5 h-5 text-red-500" />
             </button>
-            <button className="p-2 bg-gray-800 rounded-full hover:bg-gray-700">
-              <User className="w-5 h-5 text-blue-500" />
-            </button>
-          </div>
-        </div>
 
-        {/* Mobile Search Bar */}
-        <div className="block md:hidden px-4 py-2">
-          <div className="relative">
-            <Search className="absolute text-gray-500 w-5 h-5 ml-3 top-2.5" />
-            <input
-              type="text"
-              placeholder="Search"
-              className="w-full pl-10 py-2 rounded-full bg-gray-800 text-gray-300 border border-gray-700 focus:outline-none focus:border-blue-500"
-            />
+            {/* Profile Button */}
+            <button className="p-2 bg-gray-800 rounded-full hover:bg-gray-700" onClick={handleClickOnProfilePage} >
+              {user ? (
+                user.photoURL ? (
+                  <img
+                    src={user.photoURL} 
+                    alt="Profile"
+                    className="w-6 h-6 rounded-full" 
+                  />
+                ) : (
+                  <User className="w-5 h-5 text-blue-500" /> 
+                )
+              ) : (
+                <User className="w-5 h-5 text-blue-500" /> // Default icon if user is not logged in
+              )}
+            
+            </button>
           </div>
         </div>
       </header>
@@ -81,7 +99,7 @@ const ContentHeader = () => {
             >
               &times;
             </button>
-            <AddProjectForm /> 
+            <AddProjectForm />
           </div>
         </div>
       )}
