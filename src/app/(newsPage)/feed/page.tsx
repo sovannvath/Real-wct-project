@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { auth } from "@/app/services/firebase";
-import { collection, onSnapshot, DocumentData } from "firebase/firestore";
+import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "@/app/services/firebase";
 import Card from "@/components/Card";
 

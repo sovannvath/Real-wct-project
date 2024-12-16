@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { collection, onSnapshot, getFirestore } from "firebase/firestore";
 import { app } from "@/app/services/firebase";
+import { User } from "@/app/types/User";
 import {
   disableUserInFirestore,
   enableUserInFirestore,
@@ -10,15 +11,34 @@ import {
 } from "@/utils/firebaseUtils";
 
 const ManagePost = () => {
-  const [users, setUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const db = getFirestore(app);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "user"), (snapshot) => {
-      const userList = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      const userList: User[] = snapshot.docs
+        .map((doc) => {
+          const data = doc.data();
+          // Validate required fields to match the User interface
+          if (
+            data.email &&
+            data.role &&
+            data.uid !== undefined &&
+            data.disabled !== undefined
+          ) {
+            return {
+              id: doc.id,
+              email: data.email,
+              role: data.role,
+              uid: data.uid,
+              disabled: data.disabled,
+            } as User;
+          } else {
+            console.error(`Document with ID ${doc.id} is missing required fields.`);
+            return null; // Skip invalid documents
+          }
+        })
+        .filter((user): user is User => user !== null); // Remove null results
       setUsers(userList);
     });
 
@@ -57,7 +77,7 @@ const ManagePost = () => {
       <div className="max-w-4xl mx-auto p-6">
         <h1 className="text-3xl font-bold mb-4">Manage Users</h1>
         <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-3xl mt-6 border border-gray-300">
-          <h2 className="text-xl font-semibold mb-4">User Log in list</h2>
+          <h2 className="text-xl font-semibold mb-4">User Log in List</h2>
           <ul>
             {users.map((user) => (
               <li key={user.id} className="border-b py-4">

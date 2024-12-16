@@ -1,4 +1,4 @@
-import { InputFieldT } from "@/types/FormTypes"
+import { InputFieldT } from "@/app/types/FormTypes"
 
 const InputField = ({type, name, placeholder,label, register, error}:InputFieldT) => {
     return (

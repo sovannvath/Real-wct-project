@@ -1,4 +1,4 @@
-import { SubmitButtonT } from "@/types/ButtonTypes"
+import { SubmitButtonT } from "@/app/types/ButtonTypes"
 
 const SubmitButton = ({label}:SubmitButtonT) => {
     return (

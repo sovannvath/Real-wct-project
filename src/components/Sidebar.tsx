@@ -3,7 +3,12 @@ import Link from "next/link";
 import { HomeIcon, CreditCardIcon, UserIcon } from "@heroicons/react/24/solid";
 import { useRouter } from "next/router";
 
-const SideBar = forwardRef(({ showNav }, ref) => {
+// Define the props type for the SideBar component
+interface SideBarProps {
+  showNav: boolean;
+}
+
+const SideBar = forwardRef<HTMLDivElement, SideBarProps>(({ showNav }, ref) => {
   const router = useRouter();
 
   return (

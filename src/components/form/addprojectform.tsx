@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios, { AxiosError } from "axios";
 import { setDoc, doc } from "firebase/firestore";
 import { db } from "/home/vath/wct-togethertechs/src/app/services/firebase"; 
-import TechnologyData from "/home/vath/wct-togethertechs/src/app/Data/page";
+import Technology from "@/app/data/data";
 
 type FormDataType = {
   title: string;
@@ -184,7 +184,7 @@ const AddProjectForm: React.FC = () => {
             Select Technologies
           </label>
           <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
-            {TechnologyData.Technology.map((item) => (
+            {Technology.map((item) => (
               <div key={item.id} className="flex gap-2 items-center">
                 <input
                   id={`tech-${item.id}`}

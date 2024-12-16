@@ -1,5 +1,4 @@
-// src/app/admin/posts/page.tsx
-import AdminLayout from '../layout'; // Import Admin Layout
+
 
 const AddUser = () => {
   return (

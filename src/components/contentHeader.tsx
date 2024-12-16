@@ -3,31 +3,30 @@
 import React, { useState, useEffect } from "react";
 import { Search, Bell, User, Compass, Flame } from "lucide-react";
 import AddProjectForm from "./form/addprojectform";
-import { auth } from "@/app/services/firebase"; 
-import { useRouter } from "next/navigation" ;
+import { auth } from "@/app/services/firebase";
+import { useRouter } from "next/navigation";
 
 const ContentHeader = () => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
   const handleOpenModal = () => setModalOpen(true);
   const handleCloseModal = () => setModalOpen(false);
-  const router = useRouter() ; 
+  const router = useRouter();
 
   const handleClickOnProfilePage = () => {
-     router.push("/profile")  ;
-  }
+    router.push("/profile");
+  };
 
   useEffect(() => {
     const currentUser = auth.currentUser;
     if (currentUser) {
-      setUser(currentUser); 
+      setUser(currentUser);
     }
   }, []);
 
   return (
     <>
       <header className="sticky top-0 z-50 w-full bg-gray-900 text-white shadow-lg">
-
         <div className="container mx-auto flex items-center justify-between px-4 py-3 lg:px-8">
           {/* Logo */}
           <div className="flex items-center gap-2">
@@ -64,21 +63,23 @@ const ContentHeader = () => {
             </button>
 
             {/* Profile Button */}
-            <button className="p-2 bg-gray-800 rounded-full hover:bg-gray-700" onClick={handleClickOnProfilePage} >
+            <button
+              className="p-2 bg-gray-800 rounded-full hover:bg-gray-700"
+              onClick={handleClickOnProfilePage}
+            >
               {user ? (
                 user.photoURL ? (
                   <img
-                    src={user.photoURL} 
+                    src={user.photoURL}
                     alt="Profile"
-                    className="w-6 h-6 rounded-full" 
+                    className="w-6 h-6 rounded-full"
                   />
                 ) : (
-                  <User className="w-5 h-5 text-blue-500" /> 
+                  <User className="w-5 h-5 text-blue-500" />
                 )
               ) : (
                 <User className="w-5 h-5 text-blue-500" /> // Default icon if user is not logged in
               )}
-            
             </button>
           </div>
         </div>
