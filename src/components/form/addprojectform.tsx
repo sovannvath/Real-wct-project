@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { setDoc, doc } from "firebase/firestore";
-import { db } from "/home/vath/wct-togethertechs/src/app/services/firebase";
-import Technology from "@/app/data/data";
+import {db} from "@/app/services/firebase"
+
 
 type FormDataType = {
   title: string;
