@@ -35,12 +35,12 @@ export default function Header() {
         <nav className="lg:flex space-x-4 hidden peer-checked:block">
           <ul className="flex lg:flex-row flex-col space-x-4 lg:space-x-6">
             <li className="my-2 lg:my-0">
-              <Link href="/login" className="text-white hover:underline">
+              <Link href="/auth/login" className="text-white hover:underline">
                 Login
               </Link>
             </li>
             <li className="my-2 lg:my-0">
-              <Link href="/register" className="text-white hover:underline">
+              <Link href="/auth/register" className="text-white hover:underline">
                 Register
               </Link>
             </li>

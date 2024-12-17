@@ -1,5 +1,5 @@
 import { collection, onSnapshot } from "firebase/firestore";
-import { db } from "@/app/services/firebase"; // Adjust the import based on your project structure
+import { db } from "@/app/services/firebase"; 
 import React, { useState, useEffect } from "react";
 
 interface Group {

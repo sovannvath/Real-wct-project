@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import React from "react";
 import styles from "@/components/styles/utilityBar.module.css";
 import Link from "next/link";
+import JoinCommunity from "@/components/JoinCommunity";
 
 export default function Home() {
   return (
@@ -30,14 +31,15 @@ export default function Home() {
           </li>
         </ul>
         <div className={styles.authButtons}>
-          <button className={styles.loginButton}>Log In</button>
-          <button className={styles.signupButton}>Sign Up</button>
+          <button className={styles.loginButton}><Link href="/auth/login">Log In</Link></button>
+          <button className={styles.signupButton}><Link href="/auth/register">Sign Up</Link></button>
         </div>
       </nav>
 
       {/* Other Components */}
       <Navbar />
       <Hero />
+      <JoinCommunity />
       <Footer />
     </>
   );

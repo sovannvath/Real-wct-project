@@ -47,7 +47,7 @@ const CreateTeamPage = () => {
   };
 
   return (
-    <div className="bg-[#1e262b] min-h-screen py-10">
+    <div className="bg-[#0C0F1C] min-h-screen py-10">
       <h1 className="text-center text-4xl font-bold text-white mb-8">Create Team</h1>
 
       <form onSubmit={handleSubmit} className="max-w-4xl mx-auto space-y-8 px-4">

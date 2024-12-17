@@ -26,7 +26,7 @@ const ContentHeader = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full bg-gray-900 text-white shadow-lg">
+      <header className="sticky top-0 z-50 w-full bg-[#141414] text-white shadow-lg">
         <div className="container mx-auto flex items-center justify-between px-4 py-3 lg:px-8">
           {/* Logo */}
           <div className="flex items-center gap-2">
@@ -50,11 +50,12 @@ const ContentHeader = () => {
           <div className="flex items-center gap-4">
             <button
               onClick={handleOpenModal}
-              className="hidden md:flex items-center px-3 py-2 bg-gray-800 rounded-lg hover:bg-gray-700"
+              className="  hidden md:flex items-center px-4 py-2 rounded-2xl bg-gradient-to-r from-blue-500 to-teal-400 text-white font-semibold shadow-lg hover:from-blue-600 hover:to-teal-500 transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 "
             >
-              <Compass className="w-5 h-5 mr-2" />
-              <span>Create Post</span>
+              <Compass className="w-5 h-5 mr-2 text-white" />
+              <span className="text-sm md:text-base">Create Post</span>
             </button>
+
             <button className="p-2 bg-gray-800 rounded-full hover:bg-gray-700">
               <Bell className="w-5 h-5 text-yellow-500" />
             </button>

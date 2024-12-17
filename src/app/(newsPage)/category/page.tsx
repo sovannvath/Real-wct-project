@@ -1,69 +1,102 @@
-import React from 'react';
-import { IoMdArrowDropdown } from "react-icons/io";
-import { FaToggleOn } from "react-icons/fa";
+"use client";
 
-const Page = () => {
+import React, { useState } from "react";
+
+const FilterForm = () => {
+  const [sort, setSort] = useState("latest");
+  const [typeOfNews, setTypeOfNews] = useState("all");
+  const [date, setDate] = useState("");
+  const [highestRate, setHighestRate] = useState(false);
+
+  const handleReset = () => {
+    setSort("latest");
+    setTypeOfNews("all");
+    setDate("");
+    setHighestRate(false);
+  };
+
+  const handleApply = () => {
+    console.log({ sort, typeOfNews, date, highestRate });
+    // Integrate Firebase logic here
+  };
+
   return (
-    <div className="flex flex-col px-4 sm:px-6 md:px-10 lg:px-16">
-      {/* Header */}
-      <div className="font-bold text-xl sm:text-2xl md:text-3xl text-center mt-5">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-[#0C0F1C] text-white px-6 py-10">
+      {/* Heading */}
+      <h1 className="text-xl md:text-2xl font-semibold mb-6 text-center">
         Select the news you want by categorizing these
-      </div>
+      </h1>
 
-      <div className="flex justify-center mt-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 items-center w-full max-w-[1200px]">
-          <div className="bg-gray-500 rounded-3xl p-2 w-full h-[90px] text-black">
-            <span className="text-black-500 mx-5  text-sm ">Sort</span>
-            <p className="text-xl md:text-2xl font-bold mx-5 flex justify-between items-center">
-              Latest News
-              <button>
-                <IoMdArrowDropdown className="ml-2 text-2xl" />
-              </button>
-            </p>
-          </div>
+      {/* Form Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-3xl mb-6">
+        {/* Sort Dropdown */}
+        <div className="flex flex-col">
+          <label className="text-gray-400 text-sm mb-1">Sort</label>
+          <select
+            value={sort}
+            onChange={(e) => setSort(e.target.value)}
+            className="w-full p-3 rounded-lg text-black bg-white shadow focus:ring-2 focus:ring-blue-400"
+          >
+            <option value="latest">Latest News</option>
+            <option value="oldest">Oldest News</option>
+          </select>
+        </div>
 
-          <div className="bg-gray-500 rounded-3xl p-5 w-full h-[90px] text-black">
-            <p className="text-xl md:text-2xl font-bold mx-5 mt-2 flex justify-between items-center">
-              Types of news
-              <button>
-                <IoMdArrowDropdown className="ml-2 text-2xl" />
-              </button>
-            </p>
-          </div>
+        {/* Types of News Dropdown */}
+        <div className="flex flex-col">
+          <label className="text-gray-400 text-sm mb-1">Types of news</label>
+          <select
+            value={typeOfNews}
+            onChange={(e) => setTypeOfNews(e.target.value)}
+            className="w-full p-3 rounded-lg text-black bg-white shadow focus:ring-2 focus:ring-blue-400"
+          >
+            <option value="all">All</option>
+            <option value="sports">Sports</option>
+            <option value="technology">Technology</option>
+            <option value="entertainment">Entertainment</option>
+          </select>
+        </div>
 
-          <div className="bg-gray-500 rounded-3xl p-5 w-full h-[90px] text-black">
-            <p className="text-xl md:text-2xl font-bold mx-5 mt-2 flex justify-between items-center">
-              Date
-              <button>
-                <IoMdArrowDropdown className="ml-2 text-2xl" />
-              </button>
-            </p>
-          </div>
+        {/* Date Input */}
+        <div className="flex flex-col">
+          <label className="text-gray-400 text-sm mb-1">Date</label>
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className="w-full p-3 rounded-lg text-black bg-white shadow focus:ring-2 focus:ring-blue-400"
+          />
+        </div>
 
-          <div className="bg-gray-500 rounded-3xl p-5 w-full h-[90px] text-black">
-            <p className="text-xl md:text-2xl font-bold mx-5 mt-2 flex justify-between items-center">
-             Highest rates
-              <button>
-                <FaToggleOn className="ml-2 text-2xl" />
-              </button>
-            </p>
-          </div>
+        {/* Highest Rate Toggle */}
+        <div className="flex items-center justify-between">
+          <label className="text-gray-400 text-sm">Highest Rate</label>
+          <input
+            type="checkbox"
+            checked={highestRate}
+            onChange={(e) => setHighestRate(e.target.checked)}
+            className="w-10 h-5 rounded-full bg-gray-300 checked:bg-green-500 focus:ring-2 focus:ring-green-400"
+          />
         </div>
       </div>
 
       {/* Buttons */}
-      <div className="flex justify-center mt-8">
-        <div className="flex flex-wrap gap-4">
-          <button className="bg-blue-500 rounded-3xl w-[180px] sm:w-[200px] md:w-[240px] h-[50px] md:h-[60px]">
-            <p className="font-bold text-black text-lg md:text-xl">Reset Filter</p>
-          </button>
-          <button className="bg-green-500 rounded-3xl w-[180px] sm:w-[200px] md:w-[240px] h-[50px] md:h-[60px]">
-            <p className="font-bold text-black text-lg md:text-xl">Apply</p>
-          </button>
-        </div>
+      <div className="flex items-center gap-4">
+        <button
+          onClick={handleReset}
+          className="px-6 py-2 rounded-md bg-white text-black hover:bg-gray-300 transition shadow-md"
+        >
+          Reset Filter
+        </button>
+        <button
+          onClick={handleApply}
+          className="px-6 py-2 rounded-md bg-teal-500 text-white hover:bg-teal-600 transition shadow-md"
+        >
+          Apply
+        </button>
       </div>
     </div>
   );
 };
 
-export default Page;
+export default FilterForm;

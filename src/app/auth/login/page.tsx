@@ -27,7 +27,7 @@ const LoginForm = () => {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      const userDocRef = doc(db, "users", user.uid); // Use consistent collection name
+      const userDocRef = doc(db, "users", user.uid);
       await setDoc(userDocRef, {
         uid: user.uid,
         email: user.email,
