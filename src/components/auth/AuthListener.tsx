@@ -9,7 +9,7 @@ import { storeUserInFirestore } from "@/utils/firebaseUtils";
 
 const AuthListener = () => {
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<User | null>(null); // Type the user state
+  const [user, setUser] = useState<User | null>(null); 
   const router = useRouter();
   const pathname = usePathname(); 
 

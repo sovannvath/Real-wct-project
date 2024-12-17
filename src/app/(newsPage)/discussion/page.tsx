@@ -97,7 +97,7 @@ const CommunityDiscussion = () => {
       <div className="p-4 bg-[#141414] border-t border-gray-700">
         <div className="flex items-center space-x-3">
           <button className="text-gray-400 hover:text-white">
-            <Image className="w-6 h-6" />
+            <Image  className="w-6 h-6" />
           </button>
           <input
             type="text"
