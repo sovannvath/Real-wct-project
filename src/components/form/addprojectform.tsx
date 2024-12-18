@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { setDoc, doc } from "firebase/firestore";
-import {db} from "@/app/services/firebase"
-
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { db } from "@/app/services/firebase";
 
 type FormDataType = {
   title: string;
@@ -68,7 +67,8 @@ const AddProjectForm: React.FC = () => {
         throw new Error("Image upload failed");
       }
     } catch (error) {
-      throw error;
+      console.error("Error uploading image:", error);
+      throw new Error("Image upload failed. Please try again.");
     }
   };
 
@@ -85,18 +85,22 @@ const AddProjectForm: React.FC = () => {
         imageUrl = await uploadToImageKit(formData.file);
       }
 
-      await setDoc(doc(db, "addPostByUser", Date.now().toString()), {
+      // Add document to Firestore with automatic ID generation
+      const postRef = await addDoc(collection(db, "addPostByUser"), {
         title: formData.title,
         description: formData.description,
         url: formData.url,
         techList: formData.techList,
-        imageUrl: imageUrl,
-        timestamp: new Date(),
+        imageUrl: imageUrl || "", // Empty string if image upload fails
+        timestamp: serverTimestamp(), // Firestore server-side timestamp
       });
+
+      console.log("Document written with ID:", postRef.id);
 
       setLoading(false);
       setSuccess(true);
 
+      // Reset form state
       setFormData({
         title: "",
         description: "",

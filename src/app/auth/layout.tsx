@@ -1,16 +1,22 @@
-// src/app/layout.tsx
-import AuthListener from "@/components/auth/AuthListener"; // Adjust the import path if needed
+import { AuthProvider } from "@/context/AuthContext";
 
-const Layout = ({ children }: { children: React.ReactNode }) => {
+export const metadata = {
+  title: "TogetherTech",
+  description: "Join us with togethertech",
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
-      <head />
       <body>
-        <AuthListener /> 
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );
-};
-
-export default Layout;
+}

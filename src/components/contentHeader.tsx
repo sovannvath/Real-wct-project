@@ -4,24 +4,34 @@ import React, { useState, useEffect } from "react";
 import { Search, Bell, User, Compass, Flame } from "lucide-react";
 import AddProjectForm from "./form/addprojectform";
 import { auth } from "@/app/services/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
 
 const ContentHeader = () => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const router = useRouter();
+
   const handleOpenModal = () => setModalOpen(true);
   const handleCloseModal = () => setModalOpen(false);
-  const router = useRouter();
 
   const handleClickOnProfilePage = () => {
     router.push("/profile");
   };
 
+  // Use onAuthStateChanged to monitor the currently logged-in user
   useEffect(() => {
-    const currentUser = auth.currentUser;
-    if (currentUser) {
-      setUser(currentUser);
-    }
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        console.log("User is logged in:", currentUser.email);
+        setUser(currentUser);
+      } else {
+        console.log("No user is logged in.");
+        setUser(null);
+      }
+    });
+
+    return () => unsubscribe(); // Cleanup the listener
   }, []);
 
   return (
@@ -50,7 +60,7 @@ const ContentHeader = () => {
           <div className="flex items-center gap-4">
             <button
               onClick={handleOpenModal}
-              className="  hidden md:flex items-center px-4 py-2 rounded-2xl bg-gradient-to-r from-blue-500 to-teal-400 text-white font-semibold shadow-lg hover:from-blue-600 hover:to-teal-500 transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 "
+              className="hidden md:flex items-center px-4 py-2 rounded-2xl bg-gradient-to-r from-blue-500 to-teal-400 text-white font-semibold shadow-lg hover:from-blue-600 hover:to-teal-500 transition-all duration-300 transform hover:-translate-y-1 hover:scale-105"
             >
               <Compass className="w-5 h-5 mr-2 text-white" />
               <span className="text-sm md:text-base">Create Post</span>
@@ -79,7 +89,7 @@ const ContentHeader = () => {
                   <User className="w-5 h-5 text-blue-500" />
                 )
               ) : (
-                <User className="w-5 h-5 text-blue-500" /> // Default icon if user is not logged in
+                <User className="w-5 h-5 text-blue-500" />
               )}
             </button>
           </div>
@@ -94,7 +104,7 @@ const ContentHeader = () => {
         >
           <div
             className="bg-white rounded-lg p-6 max-w-lg w-full transform transition-transform duration-300"
-            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
+            onClick={(e) => e.stopPropagation()}
           >
             <button
               className="absolute top-4 right-4 text-gray-600 hover:text-gray-900"

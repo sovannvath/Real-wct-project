@@ -61,13 +61,13 @@ const LoginForm = () => {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      const userDocRef = doc(db, "users", user.uid);
+      const userDocRef = doc(db, "user", user.uid);
       await setDoc(userDocRef, {
         uid: user.uid,
         email: user.email,
         name: user.displayName || "No Name",
         photoURL: user.photoURL || "",
-        role: "user", // Default role for Google users
+        role: "user", 
         createdAt: serverTimestamp(),
       });
 

@@ -1,9 +1,9 @@
-// Import the functions you need from the SDKs you need
+// Import the functions you need from the SDKs
 import { initializeApp } from "firebase/app";
-import { getAuth , GoogleAuthProvider} from "firebase/auth";
-import { getFirestore, collection } from "firebase/firestore";
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { initializeFirestore, collection, persistentLocalCache, persistentSingleTabManager } from "firebase/firestore";
 
-// Your web app's Firebase configuration
+// Firebase configuration
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -13,17 +13,20 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Initialize Firebase app
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firebase services
-const db = getFirestore(app); // Firestore database
-const auth = getAuth(app); // Firebase Authentication
-const provider = new GoogleAuthProvider() ; 
+// Initialize Firestore with persistence
+const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({ tabManager: persistentSingleTabManager(undefined) }),
+});
 
+// Initialize Authentication
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
 
+// Utility for collection references
+const getCollectionRef = (name: string) => collection(db, name);
 
-// Example Firestore collection reference
-const colRef = collection(db, "books");
-
-export { app, db, auth, colRef  , provider };
+// Export initialized services
+export { app, db, auth, provider, getCollectionRef };
