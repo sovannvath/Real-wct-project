@@ -111,6 +111,7 @@ const UserPosts = React.memo(({ posts, loading }: { posts: Project[]; loading: b
     </div>
   );
 });
+UserPosts.displayName = "UserPosts";
 
 const TechNews = React.memo(({ articles }: { articles: NewsArticle[] }) => {
   const memoizedArticles = useMemo(() => articles, [articles]);
@@ -142,6 +143,7 @@ const TechNews = React.memo(({ articles }: { articles: NewsArticle[] }) => {
     </div>
   );
 });
+TechNews.displayName = "TechNews";
 
 // Main Feed Page
 const FeedPage = () => {
