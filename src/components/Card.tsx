@@ -2,7 +2,12 @@
 import React, { useState } from "react";
 import { doc, updateDoc, increment } from "firebase/firestore";
 import { AiFillLike } from "react-icons/ai";
-import { FaRegCommentDots, FaBookmark, FaHeart, FaEllipsisV } from "react-icons/fa";
+import {
+  FaRegCommentDots,
+  FaBookmark,
+  FaHeart,
+  FaEllipsisV,
+} from "react-icons/fa";
 import { db } from "@/app/services/firebase";
 
 interface CardProps {
@@ -11,13 +16,13 @@ interface CardProps {
   description: string;
   image?: string;
   timestamp: string;
-  likesCount?: number; // Optional for user posts
-  commentsCount?: number; // Optional for user posts
-  isLiked?: boolean; // Optional for user posts
-  isBookmarked?: boolean; // Optional for user posts
-  isFavorite?: boolean; // Optional for user posts
+  likesCount?: number; 
+  commentsCount?: number; 
+  isLiked?: boolean; 
+  isBookmarked?: boolean; 
+  isFavorite?: boolean; 
   url: string;
-  source: "user" | "api"; // Indicates the source of the card
+  source: "user" | "api"; 
 }
 
 const Card: React.FC<CardProps> = ({
@@ -34,61 +39,41 @@ const Card: React.FC<CardProps> = ({
   url,
   source,
 }) => {
-  // States for user interaction
   const [liked, setLiked] = useState(isLiked);
   const [bookmarked, setBookmarked] = useState(isBookmarked);
   const [favorite, setFavorite] = useState(isFavorite);
   const [likes, setLikes] = useState(likesCount);
+  const [showOptions, setShowOptions] = useState(false);
 
-  const postRef = doc(db, "addPostByUser", id);
+  const toggleOptions = () => {
+    setShowOptions((prev) => !prev);
+  };
 
-  const handleLike = async () => {
-    const likeChange = liked ? -1 : 1;
+  const handleShare = () => {
+    navigator.clipboard.writeText(url);
+    alert("Post link copied to clipboard!");
+  };
 
-    // Optimistic UI Update
-    setLiked(!liked);
-    setLikes((prev = 0) => prev + likeChange);
-
-    try {
-      await updateDoc(postRef, { likesCount: increment(likeChange) });
-    } catch (error) {
-      console.error("Error updating likes:", error);
-      // Rollback UI state if Firestore update fails
-      setLiked(!liked);
-      setLikes((prev = 0) => prev - likeChange);
+  const handleDelete = () => {
+    if (source === "user") {
+      const confirmDelete = confirm("Are you sure you want to delete this post?");
+      if (confirmDelete) {
+        // Perform delete logic
+        console.log(`Post ${id} deleted!`);
+      }
+    } else {
+      alert("You can only delete user posts!");
     }
   };
 
-  const handleBookmark = async () => {
-    // Optimistic UI Update
-    setBookmarked(!bookmarked);
-
-    try {
-      await updateDoc(postRef, { isBookmarked: !bookmarked });
-    } catch (error) {
-      console.error("Error updating bookmark:", error);
-      // Rollback UI state if Firestore update fails
-      setBookmarked(!bookmarked);
-    }
-  };
-
-  const handleFavorite = async () => {
-    // Optimistic UI Update
-    setFavorite(!favorite);
-
-    try {
-      await updateDoc(postRef, { isFavorite: !favorite });
-    } catch (error) {
-      console.error("Error updating favorite:", error);
-      // Rollback UI state if Firestore update fails
-      setFavorite(!favorite);
-    }
+  const handleReport = () => {
+    alert("Post reported successfully!");
   };
 
   return (
-    <div className="bg-[#0d0d0d] border border-gray-700 rounded-[40px] shadow-lg hover:shadow-xl transition-transform transform hover:scale-105 w-[350px] h-auto flex flex-col text-white">
+    <div className="bg-[#0d0d0d] border border-gray-700 rounded-[40px] shadow-lg hover:shadow-xl transition-transform transform hover:scale-105 w-[350px] h-[445px] flex flex-col text-white relative">
       {/* Header: View More Button and Options */}
-      <div className="flex justify-end items-center px-5 py-3 space-x-2">
+      <div className="flex justify-end items-center px-5 py-3 space-x-2 relative">
         <a
           href={url}
           target="_blank"
@@ -97,9 +82,36 @@ const Card: React.FC<CardProps> = ({
         >
           View More
         </a>
-        <button className="text-gray-400 hover:text-white">
+        <button
+          className="text-gray-400 hover:text-white relative"
+          onClick={toggleOptions}
+        >
           <FaEllipsisV className="w-5 h-5" />
         </button>
+        {showOptions && (
+          <div className="absolute top-10 right-0 bg-[#1e1e1e] text-white shadow-lg rounded-lg z-50 w-40 py-2">
+            <button
+              onClick={handleShare}
+              className="w-full text-left px-4 py-2 hover:bg-gray-700"
+            >
+              Share
+            </button>
+            {source === "user" && (
+              <button
+                onClick={handleDelete}
+                className="w-full text-left px-4 py-2 hover:bg-gray-700"
+              >
+                Delete Post
+              </button>
+            )}
+            <button
+              onClick={handleReport}
+              className="w-full text-left px-4 py-2 hover:bg-gray-700"
+            >
+              Report Post
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Content */}
@@ -110,7 +122,7 @@ const Card: React.FC<CardProps> = ({
       </div>
 
       {/* Image */}
-      <div className="relative w-full h-[185px] bg-gray-800 overflow-hidden">
+      <div className="relative w-full h-[185px] bg-gray-800 overflow-hidden ">
         {image ? (
           <img
             src={image}
@@ -129,7 +141,7 @@ const Card: React.FC<CardProps> = ({
       {source === "user" && (
         <div className="px-5 py-3 flex justify-between items-center text-gray-400">
           <div
-            onClick={handleLike}
+            onClick={() => setLiked(!liked)}
             className="flex items-center space-x-1 cursor-pointer"
           >
             <AiFillLike className={`w-6 h-6 ${liked ? "text-blue-500" : ""}`} />
@@ -141,13 +153,13 @@ const Card: React.FC<CardProps> = ({
             <span>{commentsCount}</span>
           </div>
 
-          <div onClick={handleBookmark} className="cursor-pointer">
+          <div onClick={() => setBookmarked(!bookmarked)} className="cursor-pointer">
             <FaBookmark
               className={`w-5 h-5 ${bookmarked ? "text-yellow-500" : ""}`}
             />
           </div>
 
-          <div onClick={handleFavorite} className="cursor-pointer">
+          <div onClick={() => setFavorite(!favorite)} className="cursor-pointer">
             <FaHeart className={`w-5 h-5 ${favorite ? "text-red-500" : ""}`} />
           </div>
         </div>
