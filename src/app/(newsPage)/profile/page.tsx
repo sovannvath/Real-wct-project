@@ -26,7 +26,7 @@ const ProfilePage = () => {
 
   return (
     <div className="min-h-screen bg-[#141414] text-white flex flex-col items-center px-4">
-      {/* Profile Header Section */}
+      
       <div className="w-full max-w-4xl bg-gray-800 rounded-xl shadow-lg mt-8">
 
         {/* Profile Information Section */}

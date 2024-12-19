@@ -14,8 +14,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="h-screen flex flex-col">
+    
+      <section className="h-screen flex flex-col">
         {/* Header Component */}
         <ContentHeader />
 
@@ -29,7 +29,7 @@ export default function RootLayout({
             {children}
           </main>
         </div>
-      </body>
-    </html>
+      </section>
+  
   );
 }

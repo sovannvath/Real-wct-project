@@ -146,8 +146,8 @@ const TechNews = React.memo(
               isLiked={false}
               isBookmarked={false}
               isFavorite={false}
-              url={article.url} // Use the correct `url` field
-              source="api" // Identify as API post
+              url={article.url}
+              source="api" 
             />
           </div>
         ))}
@@ -190,7 +190,7 @@ const FeedPage = () => {
   return (
     <div className="min-h-screen bg-[#0e1116] text-gray-800 relative">
       {/* Header Buttons */}
-      <div className="flex gap-2 mb-4">
+      <div className="flex gap-2 mb-4 justify-center sm:justify-start">
         <button
           onClick={handleLogout}
           className="px-4 py-2 bg-red-500 text-white rounded shadow-md hover:bg-red-600 transition h-12"
@@ -217,7 +217,7 @@ const FeedPage = () => {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-3xl font-bold mb-8 text-white text-center">
+        <h1 className="text-3xl font-extrabold mb-8 text-center text-white sm:text-left border-b-2 border-gray-600 pb-3">
           {view === "userPosts" ? "User Posts" : "Technology News"}
         </h1>
 
