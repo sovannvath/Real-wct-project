@@ -9,7 +9,7 @@ import Card from "@/components/Card";
 import Link from "next/link";
 import SkeletonCard from "@/components/SkeletonCard";
 
-interface Project {
+interface addPostByUser {
   id: string;
   title: string;
   description: string;
@@ -29,14 +29,14 @@ interface NewsArticle {
 
 // Custom Hooks
 const useFetchPosts = () => {
-  const [posts, setPosts] = useState<Project[]>([]);
+  const [posts, setPosts] = useState<addPostByUser[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(
       query(collection(db, "addPostByUser"), orderBy("timestamp", "desc"), limit(10)),
       (snapshot) => {
-        const postData: Project[] = snapshot.docs.map((doc) => {
+        const postData: addPostByUser[] = snapshot.docs.map((doc) => {
           const data = doc.data();
           return {
             id: doc.id,
@@ -70,7 +70,12 @@ const useFetchNews = () => {
           `https://newsapi.org/v2/top-headlines?category=technology&country=us&apiKey=${apiKey}`
         );
         const data = await response.json();
-        setNews(data.articles || []);
+        console.log("API Response Data:", data); // Debugging API response
+        if (data.articles) {
+          setNews(data.articles);
+        } else {
+          console.warn("No articles found:", data);
+        }
       } catch (error) {
         console.error("Error fetching news:", error);
       }
@@ -84,7 +89,7 @@ const useFetchNews = () => {
 };
 
 // Components
-const UserPosts = React.memo(({ posts, loading }: { posts: Project[]; loading: boolean }) => {
+const UserPosts = React.memo(({ posts, loading }: { posts: addPostByUser[]; loading: boolean }) => {
   const memoizedPosts = useMemo(() => posts, [posts]);
 
   return (
@@ -114,6 +119,7 @@ const UserPosts = React.memo(({ posts, loading }: { posts: Project[]; loading: b
 UserPosts.displayName = "UserPosts";
 
 const TechNews = React.memo(({ articles }: { articles: NewsArticle[] }) => {
+  console.log("TechNews Articles:", articles); // Debugging articles prop
   const memoizedArticles = useMemo(() => articles, [articles]);
 
   return (
