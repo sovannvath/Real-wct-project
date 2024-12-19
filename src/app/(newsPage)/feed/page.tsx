@@ -3,13 +3,19 @@ import React, { useEffect, useState, useMemo } from "react";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { auth } from "@/app/services/firebase";
-import { collection, query, orderBy, onSnapshot, limit } from "firebase/firestore";
+import {
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  limit,
+} from "firebase/firestore";
 import { db } from "@/app/services/firebase";
 import Card from "@/components/Card";
-import Link from "next/link";
 import SkeletonCard from "@/components/SkeletonCard";
 
-interface addPostByUser {
+interface AddPostByUser {
+  url: string;
   id: string;
   title: string;
   description: string;
@@ -29,14 +35,18 @@ interface NewsArticle {
 
 // Custom Hooks
 const useFetchPosts = () => {
-  const [posts, setPosts] = useState<addPostByUser[]>([]);
+  const [posts, setPosts] = useState<AddPostByUser[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(
-      query(collection(db, "addPostByUser"), orderBy("timestamp", "desc"), limit(10)),
+      query(
+        collection(db, "addPostByUser"),
+        orderBy("timestamp", "desc"),
+        limit(10)
+      ),
       (snapshot) => {
-        const postData: addPostByUser[] = snapshot.docs.map((doc) => {
+        const postData: AddPostByUser[] = snapshot.docs.map((doc) => {
           const data = doc.data();
           return {
             id: doc.id,
@@ -45,6 +55,7 @@ const useFetchPosts = () => {
             imageUrl: data.imageUrl || "https://via.placeholder.com/300",
             likesCount: data.likesCount ?? 0,
             commentsCount: data.commentsCount ?? 0,
+            url: data.url || "#", // Ensure the URL is included
             timestamp: data.timestamp?.toDate().toLocaleString() || "",
           };
         });
@@ -85,69 +96,65 @@ const useFetchNews = () => {
   return memoizedNews;
 };
 
-
-
 // Components
-const UserPosts = React.memo(({ posts, loading }: { posts: addPostByUser[]; loading: boolean }) => {
-  const memoizedPosts = useMemo(() => posts, [posts]);
-
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {loading
-        ? Array.from({ length: 6 }).map((_, index) => <SkeletonCard key={index} />)
-        : memoizedPosts.map((post) => (
-            <div key={post.id} className="flex justify-center">
-              <Card
-                id={post.id}
-                title={post.title}
-                description={post.description}
-                image={post.imageUrl}
-                timestamp={post.timestamp}
-                likesCount={post.likesCount ?? 0}
-                commentsCount={post.commentsCount ?? 0}
-                isLiked={false}
-                isBookmarked={false}
-                isFavorite={false}
-                url=""
-              />
-            </div>
-          ))}
-    </div>
-  );
-});
+const UserPosts = React.memo(
+  ({ posts, loading }: { posts: AddPostByUser[]; loading: boolean }) => {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {loading
+          ? Array.from({ length: 6 }).map((_, index) => (
+              <SkeletonCard key={index} />
+            ))
+          : posts.map((post) => (
+              <div key={post.id} className="flex justify-center">
+                <Card
+                  id={post.id}
+                  title={post.title}
+                  description={post.description}
+                  image={post.imageUrl}
+                  timestamp={post.timestamp}
+                  likesCount={post.likesCount ?? 0}
+                  commentsCount={post.commentsCount ?? 0}
+                  isLiked={false}
+                  isBookmarked={false}
+                  isFavorite={false}
+                  url={post.url} // Use the correct `url` field
+                  source="user" // Identify as user post
+                />
+              </div>
+            ))}
+      </div>
+    );
+  }
+);
 UserPosts.displayName = "UserPosts";
 
-const TechNews = React.memo(({ articles }: { articles: NewsArticle[] }) => {
-  console.log("TechNews Articles:", articles); // Debugging articles prop
-  const memoizedArticles = useMemo(() => articles, [articles]);
-
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {memoizedArticles.map((article, index) => (
-        <div key={index} className="bg-white rounded-xl shadow-md p-4">
-          <img
-            src={article.urlToImage || "https://via.placeholder.com/300"}
-            alt={article.title}
-            className="w-full h-40 object-cover rounded-lg mb-4"
-            loading="lazy"
-          />
-          <h3 className="text-lg font-semibold mb-2">{article.title}</h3>
-          <p className="text-sm text-gray-600 mb-4">
-            {article.description || "No description available"}
-          </p>
-          <Link
-            href={article.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-500 hover:underline"
-          >
-            Read more
-          </Link>
-        </div>
-      ))}
-    </div>
-  );
-});
+const TechNews = React.memo(
+  ({ articles }: { articles: NewsArticle[] }) => {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {articles.map((article, index) => (
+          <div key={index} className="flex justify-center">
+            <Card
+              id={index.toString()}
+              title={article.title}
+              description={article.description || "No description available"}
+              image={article.urlToImage || "https://via.placeholder.com/300"}
+              timestamp={new Date(article.publishedAt).toLocaleString()}
+              likesCount={0} // Default values for API cards
+              commentsCount={0}
+              isLiked={false}
+              isBookmarked={false}
+              isFavorite={false}
+              url={article.url} // Use the correct `url` field
+              source="api" // Identify as API post
+            />
+          </div>
+        ))}
+      </div>
+    );
+  }
+);
 TechNews.displayName = "TechNews";
 
 // Main Feed Page
@@ -157,7 +164,6 @@ const FeedPage = () => {
   const newsArticles = useFetchNews();
   const router = useRouter();
 
-  // Handle Firebase Authentication
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       if (!user) {

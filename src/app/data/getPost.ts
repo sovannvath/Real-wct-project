@@ -6,8 +6,8 @@ import { db } from "@/app/services/firebase";
 export async function getUserPosts() {
   const postQuery = query(
     collection(db, "addPostByUser"),
-    orderBy("timestamp", "desc"), // Sort by timestamp
-    limit(10) // Limit the number of posts
+    orderBy("timestamp", "desc"), 
+    limit(10) 
   );
 
   const snapshot = await getDocs(postQuery);
