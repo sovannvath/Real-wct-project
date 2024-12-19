@@ -64,17 +64,14 @@ const useFetchNews = () => {
 
   useEffect(() => {
     const fetchNews = async () => {
-      const apiKey = process.env.NEXT_PUBLIC_NEWS_API_KEY;
       try {
-        const response = await fetch(
-          `https://newsapi.org/v2/top-headlines?category=technology&country=us&apiKey=${apiKey}`
-        );
+        const response = await fetch("/api/new");
         const data = await response.json();
-        console.log("API Response Data:", data); // Debugging API response
-        if (data.articles) {
-          setNews(data.articles);
+
+        if (data.error) {
+          console.error("Error fetching news:", data.error);
         } else {
-          console.warn("No articles found:", data);
+          setNews(data.articles || []);
         }
       } catch (error) {
         console.error("Error fetching news:", error);
@@ -87,6 +84,8 @@ const useFetchNews = () => {
   const memoizedNews = useMemo(() => news, [news]);
   return memoizedNews;
 };
+
+
 
 // Components
 const UserPosts = React.memo(({ posts, loading }: { posts: addPostByUser[]; loading: boolean }) => {
