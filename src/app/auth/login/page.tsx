@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { auth } from "@/app/services/firebase";
+import { signOut } from "firebase/auth"; // Import signOut directly
+import { auth } from "@/app/services/firebase"; // Import the initialized auth
+
 import {
   signInWithEmailAndPassword,
   signInWithPopup,
@@ -22,11 +24,12 @@ const LoginForm = () => {
     e.preventDefault();
     setIsLoading(true);
     setMessage("");
-
+  
     try {
+      await signOut(auth); // Ensure no lingering sessions
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-
+  
       const userDocRef = doc(db, "user", user.uid);
       await setDoc(userDocRef, {
         uid: user.uid,
@@ -34,11 +37,11 @@ const LoginForm = () => {
         role: email === "admin123@gmail.com" ? "admin" : "user",
         createdAt: serverTimestamp(),
       });
-
+  
       setMessage("Login successful! Redirecting...");
       setEmail("");
       setPassword("");
-
+  
       if (email === "admin123@gmail.com") {
         router.push("/dashboard");
       } else {

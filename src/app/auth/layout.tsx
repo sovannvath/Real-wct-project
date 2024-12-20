@@ -1,4 +1,3 @@
-import { AuthProvider } from "@/context/AuthContext";
 
 export const metadata = {
   title: "TogetherTech",
@@ -11,12 +10,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body>
-        <AuthProvider>
+
+      
+      <section>
+        
           {children}
-        </AuthProvider>
-      </body>
-    </html>
+       
+      </section>
+   
   );
 }

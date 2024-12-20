@@ -1,38 +1,17 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Search, Bell, User, Compass, Flame } from "lucide-react";
+import React, { useState } from "react";
+import { Search, Bell, Compass, Flame } from "lucide-react";
 import AddProjectForm from "./form/addprojectform";
-import { auth } from "@/app/services/firebase";
-import { onAuthStateChanged } from "firebase/auth";
+import ProfileButton from "@/components/ProfileButton"; // Import the ProfileButton
 import { useRouter } from "next/navigation";
 
 const ContentHeader = () => {
   const [isModalOpen, setModalOpen] = useState(false);
-  const [user, setUser] = useState<any>(null);
   const router = useRouter();
 
   const handleOpenModal = () => setModalOpen(true);
   const handleCloseModal = () => setModalOpen(false);
-
-  const handleClickOnProfilePage = () => {
-    router.push("/profile");
-  };
-
-  // Use onAuthStateChanged to monitor the currently logged-in user
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser) {
-        console.log("User is logged in:", currentUser.email);
-        setUser(currentUser);
-      } else {
-        console.log("No user is logged in.");
-        setUser(null);
-      }
-    });
-
-    return () => unsubscribe(); // Cleanup the listener
-  }, []);
 
   return (
     <>
@@ -73,25 +52,8 @@ const ContentHeader = () => {
               <Flame className="w-5 h-5 text-red-500" />
             </button>
 
-            {/* Profile Button */}
-            <button
-              className="p-2 bg-gray-800 rounded-full hover:bg-gray-700"
-              onClick={handleClickOnProfilePage}
-            >
-              {user ? (
-                user.photoURL ? (
-                  <img
-                    src={user.photoURL}
-                    alt="Profile"
-                    className="w-6 h-6 rounded-full"
-                  />
-                ) : (
-                  <User className="w-5 h-5 text-blue-500" />
-                )
-              ) : (
-                <User className="w-5 h-5 text-blue-500" />
-              )}
-            </button>
+            {/* Use the ProfileButton Component */}
+            <ProfileButton />
           </div>
         </div>
       </header>

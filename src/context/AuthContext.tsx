@@ -1,12 +1,15 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { auth } from "@/app/services/firebase";
+import { signOut } from "firebase/auth";
+import { auth } from "@/app/services/firebase"; // Import the initialized auth
+
 import { onAuthStateChanged, User } from "firebase/auth";
 
 interface AuthContextType {
   currentUser: User | null;
   loading: boolean;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -30,8 +33,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => unsubscribe(); // Cleanup on unmount
   }, []);
 
+  const logout = async () => {
+    await signOut(auth); // Clear Firebase session
+    setCurrentUser(null); // Immediately clear local state
+    console.log("User logged out.");
+  };
+
   return (
-    <AuthContext.Provider value={{ currentUser, loading }}>
+    <AuthContext.Provider value={{ currentUser, loading, logout }}>
       {children}
     </AuthContext.Provider>
   );

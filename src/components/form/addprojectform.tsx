@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { auth } from "@/app/services/firebase"; // Import Firebase auth
 import { db } from "@/app/services/firebase";
 
 type FormDataType = {
@@ -23,6 +24,17 @@ const AddProjectForm: React.FC = () => {
   const [loading, setLoading] = useState(false); // Loading state
   const [success, setSuccess] = useState(false); // Success banner visibility
   const [error, setError] = useState<string | null>(null); // Error banner visibility
+  const [userId, setUserId] = useState<string | null>(null); // Store authenticated user ID
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setUserId(user.uid); // Set the authenticated user's ID
+      }
+    });
+
+    return () => unsubscribe(); // Cleanup subscription
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -79,6 +91,10 @@ const AddProjectForm: React.FC = () => {
     setError(null);
 
     try {
+      if (!userId) {
+        throw new Error("User is not authenticated.");
+      }
+
       let imageUrl = null;
 
       if (formData.file) {
@@ -86,13 +102,14 @@ const AddProjectForm: React.FC = () => {
       }
 
       // Add document to Firestore with automatic ID generation
-      const postRef = await addDoc(collection(db, "addPostByUser"), {
+      const postRef = await addDoc(collection(db, "allPosts"), {
         title: formData.title,
         description: formData.description,
         url: formData.url,
         techList: formData.techList,
         imageUrl: imageUrl || "", // Empty string if image upload fails
         timestamp: serverTimestamp(), // Firestore server-side timestamp
+        userId: userId, // Include the authenticated user's ID
       });
 
       console.log("Document written with ID:", postRef.id);

@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
-import { initializeFirestore, collection, persistentLocalCache, persistentSingleTabManager } from "firebase/firestore";
+import { initializeFirestore, collection, persistentLocalCache, persistentSingleTabManager, doc, setDoc, updateDoc, deleteDoc, addDoc, onSnapshot, serverTimestamp } from "firebase/firestore";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -27,6 +27,35 @@ const provider = new GoogleAuthProvider();
 
 // Utility for collection references
 const getCollectionRef = (name: string) => collection(db, name);
+
+// Function to add a comment
+export const addComment = async (postId: string, commentData: { userId: string; username: string; comment: string }) => {
+  try {
+    const commentsRef = collection(db, "allPosts", postId, "comments");
+    await addDoc(commentsRef, {
+      ...commentData,
+      timestamp: serverTimestamp(),
+    });
+    console.log("Comment added successfully!");
+  } catch (error) {
+    console.error("Error adding comment:", error);
+  }
+};
+
+// Function to fetch comments in real-time
+export const fetchComments = (postId: string, callback: (comments: any[]) => void) => {
+  const commentsRef = collection(db, "allPosts", postId, "comments");
+
+  const unsubscribe = onSnapshot(commentsRef, (snapshot) => {
+    const comments = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    callback(comments);
+  });
+
+  return unsubscribe; // Unsubscribe listener
+};
 
 // Export initialized services
 export { app, db, auth, provider, getCollectionRef };

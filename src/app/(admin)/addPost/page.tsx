@@ -11,7 +11,7 @@ type FormDataType = {
   description: string;
   url: string;
   file: File | null;
-  techList?: string[];
+  techList: string[];
 };
 
 const AdminPostForm: React.FC = () => {
@@ -23,9 +23,14 @@ const AdminPostForm: React.FC = () => {
     file: null,
     techList: [],
   });
+  const [submissionStatus, setSubmissionStatus] = useState<
+    "success" | "failure" | null
+  >(null);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
 
@@ -40,11 +45,52 @@ const AdminPostForm: React.FC = () => {
     }
   };
 
-  const uploadToImageKit = async (file: File) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setSubmissionStatus(null); // Reset status on new submission
+
+    try {
+      let imageUrl: string | null = null;
+      if (formData.file) {
+        imageUrl = await uploadToImageKit(formData.file);
+      }
+
+      // Save admin post in the unified `allPosts` collection
+      await setDoc(doc(db, "allPosts", Date.now().toString()), {
+        title: formData.title,
+        description: formData.description,
+        url: formData.url,
+        techList: formData.techList,
+        imageUrl: imageUrl || "",
+        timestamp: new Date(),
+        source: "admin", // Mark this as an admin post
+      });
+
+      setSubmissionStatus("success"); // Indicate success
+      console.log("Admin post successfully created!");
+
+      // Reset the form state
+      setFormData({
+        title: "",
+        description: "",
+        url: "",
+        file: null,
+        techList: [],
+      });
+      setTechList([]);
+    } catch (error) {
+      setSubmissionStatus("failure");
+      console.error("Error submitting form:", error);
+    }
+  };
+
+  const uploadToImageKit = async (file: File): Promise<string> => {
     const privateKey = process.env.NEXT_PUBLIC_IMAGEKIT_PRIVATE_API_KEY;
 
     if (!privateKey) {
-      throw new Error("ImageKit Private API Key is missing. Check your .env file.");
+      throw new Error(
+        "ImageKit Private API Key is missing. Check your .env file."
+      );
     }
 
     const formDataToUpload = new FormData();
@@ -69,42 +115,11 @@ const AdminPostForm: React.FC = () => {
       }
     } catch (error) {
       const axiosError = error as AxiosError;
-      console.error("Error uploading to ImageKit:", axiosError.response?.data || axiosError.message);
+      console.error(
+        "Error uploading to ImageKit:",
+        axiosError.response?.data || axiosError.message
+      );
       throw error;
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    try {
-      let imageUrl = null;
-
-      if (formData.file) {
-        imageUrl = await uploadToImageKit(formData.file);
-      }
-
-      await setDoc(doc(db, "adminPosts", Date.now().toString()), {
-        title: formData.title,
-        description: formData.description,
-        url: formData.url,
-        techList: formData.techList,
-        imageUrl: imageUrl,
-        timestamp: new Date(),
-      });
-
-      console.log("Admin post successfully created!");
-
-      setFormData({
-        title: "",
-        description: "",
-        url: "",
-        file: null,
-        techList: [],
-      });
-      setTechList([]);
-    } catch (error) {
-      console.error("Error submitting form:", error);
     }
   };
 
@@ -126,11 +141,26 @@ const AdminPostForm: React.FC = () => {
   }, [techList]);
 
   return (
-    <div className="bg-[#141414] p-6 rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold text-[#105b69] mb-4">Create Admin Post</h2>
+    <div className="bg-[#1e1e2f] p-8 rounded-lg shadow-lg border border-[#2a2a3f]">
+      <h2 className="text-3xl font-bold text-[#4ade80] mb-6">
+        Create Admin Post
+      </h2>
+      {submissionStatus === "success" && (
+        <div className="mb-4 p-4 text-green-500 bg-green-100 border border-green-500 rounded">
+          Your submission was successful!
+        </div>
+      )}
+      {submissionStatus === "failure" && (
+        <div className="mb-4 p-4 text-red-500 bg-red-100 border border-red-500 rounded">
+          There was an error submitting your post. Please try again.
+        </div>
+      )}
       <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label className="block text-white font-medium mb-2" htmlFor="title">
+        <div className="mb-6">
+          <label
+            className="block text-gray-300 font-semibold mb-2"
+            htmlFor="title"
+          >
             Title
           </label>
           <input
@@ -139,13 +169,16 @@ const AdminPostForm: React.FC = () => {
             name="title"
             value={formData.title}
             onChange={handleChange}
-            className="w-full border border-[#105b69] rounded-md p-2 bg-[#141414] text-white focus:outline-none focus:ring-2 focus:ring-[#105b69]"
+            className="w-full border border-gray-700 rounded-lg p-3 bg-[#2a2a3f] text-gray-100 placeholder-gray-400 focus:outline-none focus:ring focus:ring-[#4ade80]"
             placeholder="Enter title"
             required
           />
         </div>
-        <div className="mb-4">
-          <label className="block text-white font-medium mb-2" htmlFor="description">
+        <div className="mb-6">
+          <label
+            className="block text-gray-300 font-semibold mb-2"
+            htmlFor="description"
+          >
             Description
           </label>
           <textarea
@@ -153,13 +186,17 @@ const AdminPostForm: React.FC = () => {
             name="description"
             value={formData.description}
             onChange={handleChange}
-            className="w-full border border-[#105b69] rounded-md p-2 bg-[#141414] text-white focus:outline-none focus:ring-2 focus:ring-[#105b69]"
+            className="w-full border border-gray-700 rounded-lg p-3 bg-[#2a2a3f] text-gray-100 placeholder-gray-400 focus:outline-none focus:ring focus:ring-[#4ade80]"
             placeholder="Write description here"
+            rows={4}
             required
           ></textarea>
         </div>
-        <div className="mb-4">
-          <label className="block text-white font-medium mb-2" htmlFor="url">
+        <div className="mb-6">
+          <label
+            className="block text-gray-300 font-semibold mb-2"
+            htmlFor="url"
+          >
             URL
           </label>
           <input
@@ -168,33 +205,39 @@ const AdminPostForm: React.FC = () => {
             name="url"
             value={formData.url}
             onChange={handleChange}
-            className="w-full border border-[#105b69] rounded-md p-2 bg-[#141414] text-white focus:outline-none focus:ring-2 focus:ring-[#105b69]"
+            className="w-full border border-gray-700 rounded-lg p-3 bg-[#2a2a3f] text-gray-100 placeholder-gray-400 focus:outline-none focus:ring focus:ring-[#4ade80]"
             placeholder="Enter URL"
             required
           />
         </div>
-        <div className="mb-4">
-          <label className="block text-white font-medium mb-2">
+        <div className="mb-6">
+          <label className="block text-gray-300 font-semibold mb-2">
             Select Technologies
           </label>
-          <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
             {Technology.map((item) => (
-              <div key={item.id} className="flex gap-2 items-center">
+              <div key={item.id} className="flex items-center">
                 <input
                   id={`tech-${item.id}`}
                   type="checkbox"
                   onChange={(e) => onTechSelect(item.name, e.target.checked)}
-                  className="w-4 h-4 text-[#105b69] bg-[#141414] border-[#105b69] focus:ring-[#105b69]"
+                  className="h-5 w-5 text-[#4ade80] bg-[#2a2a3f] border-gray-700 rounded focus:ring-[#4ade80]"
                 />
-                <label htmlFor={`tech-${item.id}`} className="text-white text-sm">
+                <label
+                  htmlFor={`tech-${item.id}`}
+                  className="ml-2 text-gray-300"
+                >
                   {item.name}
                 </label>
               </div>
             ))}
           </div>
         </div>
-        <div className="mb-4">
-          <label className="block text-white font-medium mb-2" htmlFor="file">
+        <div className="mb-6">
+          <label
+            className="block text-gray-300 font-semibold mb-2"
+            htmlFor="file"
+          >
             Upload File
           </label>
           <input
@@ -202,12 +245,12 @@ const AdminPostForm: React.FC = () => {
             id="file"
             name="file"
             onChange={handleChange}
-            className="w-full border border-[#105b69] rounded-md p-2 bg-[#141414] text-white focus:outline-none focus:ring-2 focus:ring-[#105b69]"
+            className="w-full border border-gray-700 rounded-lg p-3 bg-[#2a2a3f] text-gray-100 placeholder-gray-400 focus:outline-none focus:ring focus:ring-[#4ade80]"
           />
         </div>
         <button
           type="submit"
-          className="w-full bg-[#105b69] text-white font-bold py-2 px-4 rounded-md hover:bg-white hover:text-[#105b69] transition duration-300"
+          className="w-full bg-[#4ade80] text-gray-900 font-bold py-3 px-4 rounded-lg hover:bg-[#3ac771] transition-all duration-300"
         >
           Submit
         </button>

@@ -16,7 +16,7 @@ export default function Home() {
         <div className={styles.languages}>
           <Link href="/" className={styles.active}>
             English
-          </Link>{" "}
+          </Link>
           | <Link href="/">Khmer</Link>
         </div>
         <ul className={styles.navLinks}>

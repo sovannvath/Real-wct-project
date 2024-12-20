@@ -11,9 +11,8 @@ import {
   Legend,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
-import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import { signOut } from "firebase/auth";
 import { auth } from "@/app/services/firebase";
 
 // Register Chart.js components
@@ -21,17 +20,6 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 const Dashboard = () => {
   const router = useRouter();
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        // If user is not authenticated, redirect to login page
-        router.push("/auth/login");
-      }
-    });
-
-    return () => unsubscribe(); // Cleanup on unmount
-  }, [router]);
 
   // Handle user logout
   const handleLogout = async () => {
@@ -49,7 +37,7 @@ const Dashboard = () => {
     datasets: [
       {
         label: "Total Pending Posts",
-        data: [12, 19, 10, 17, 28, 24, 15], // Example data
+        data: [12, 19, 10, 17, 28, 24, 15], 
         backgroundColor: "#105b69",
         borderColor: "#105b69",
         borderWidth: 1,

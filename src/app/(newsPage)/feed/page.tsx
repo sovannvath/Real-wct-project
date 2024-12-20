@@ -23,6 +23,8 @@ interface AddPostByUser {
   likesCount?: number;
   commentsCount?: number;
   timestamp: string;
+  source: "user" | "admin";
+  userId: string; // Added userId
 }
 
 interface NewsArticle {
@@ -33,7 +35,7 @@ interface NewsArticle {
   publishedAt: string;
 }
 
-// Custom Hooks
+// Custom Hook: Fetch Posts
 const useFetchPosts = () => {
   const [posts, setPosts] = useState<AddPostByUser[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,9 +43,9 @@ const useFetchPosts = () => {
   useEffect(() => {
     const unsubscribe = onSnapshot(
       query(
-        collection(db, "addPostByUser"),
+        collection(db, "allPosts"),
         orderBy("timestamp", "desc"),
-        limit(10)
+        limit(20)
       ),
       (snapshot) => {
         const postData: AddPostByUser[] = snapshot.docs.map((doc) => {
@@ -55,21 +57,24 @@ const useFetchPosts = () => {
             imageUrl: data.imageUrl || "https://via.placeholder.com/300",
             likesCount: data.likesCount ?? 0,
             commentsCount: data.commentsCount ?? 0,
-            url: data.url || "#", // Ensure the URL is included
+            url: data.url || "#",
             timestamp: data.timestamp?.toDate().toLocaleString() || "",
+            source: data.source || "user",
+            userId: data.userId || "", // Added userId
           };
         });
         setPosts(postData);
         setLoading(false);
       }
     );
+
     return () => unsubscribe();
   }, []);
 
-  const memoizedPosts = useMemo(() => posts, [posts]);
-  return { posts: memoizedPosts, loading };
+  return { posts: useMemo(() => posts, [posts]), loading };
 };
 
+// Custom Hook: Fetch News
 const useFetchNews = () => {
   const [news, setNews] = useState<NewsArticle[]>([]);
 
@@ -92,72 +97,10 @@ const useFetchNews = () => {
     fetchNews();
   }, []);
 
-  const memoizedNews = useMemo(() => news, [news]);
-  return memoizedNews;
+  return useMemo(() => news, [news]);
 };
 
-// Components
-const UserPosts = React.memo(
-  ({ posts, loading }: { posts: AddPostByUser[]; loading: boolean }) => {
-    return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {loading
-          ? Array.from({ length: 6 }).map((_, index) => (
-              <SkeletonCard key={index} />
-            ))
-          : posts.map((post) => (
-              <div key={post.id} className="flex justify-center">
-                <Card
-                  id={post.id}
-                  title={post.title}
-                  description={post.description}
-                  image={post.imageUrl}
-                  timestamp={post.timestamp}
-                  likesCount={post.likesCount ?? 0}
-                  commentsCount={post.commentsCount ?? 0}
-                  isLiked={false}
-                  isBookmarked={false}
-                  isFavorite={false}
-                  url={post.url} // Use the correct `url` field
-                  source="user" // Identify as user post
-                />
-              </div>
-            ))}
-      </div>
-    );
-  }
-);
-UserPosts.displayName = "UserPosts";
-
-const TechNews = React.memo(
-  ({ articles }: { articles: NewsArticle[] }) => {
-    return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {articles.map((article, index) => (
-          <div key={index} className="flex justify-center">
-            <Card
-              id={index.toString()}
-              title={article.title}
-              description={article.description || "No description available"}
-              image={article.urlToImage || "https://via.placeholder.com/300"}
-              timestamp={new Date(article.publishedAt).toLocaleString()}
-              likesCount={0} // Default values for API cards
-              commentsCount={0}
-              isLiked={false}
-              isBookmarked={false}
-              isFavorite={false}
-              url={article.url}
-              source="api" 
-            />
-          </div>
-        ))}
-      </div>
-    );
-  }
-);
-TechNews.displayName = "TechNews";
-
-// Main Feed Page
+// Main FeedPage Component
 const FeedPage = () => {
   const [view, setView] = useState<"userPosts" | "techNews">("userPosts");
   const { posts, loading } = useFetchPosts();
@@ -211,21 +154,63 @@ const FeedPage = () => {
             view === "userPosts" ? "bg-slate-700" : ""
           }`}
         >
-          Post by Users
+          Posts
         </button>
       </div>
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-3xl font-extrabold mb-8 text-center text-white sm:text-left border-b-2 border-gray-600 pb-3">
-          {view === "userPosts" ? "User Posts" : "Technology News"}
+          {view === "userPosts" ? "User/Admin Posts" : "Technology News"}
         </h1>
 
         {/* Conditional Rendering */}
         {view === "userPosts" ? (
-          <UserPosts posts={posts} loading={loading} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {loading
+              ? Array.from({ length: 6 }).map((_, index) => (
+                  <SkeletonCard key={index} />
+                ))
+              : posts.map((post) => (
+                  <Card
+                    key={post.id}
+                    id={post.id}
+                    userId={post.userId} // Pass userId to Card
+                    title={post.title}
+                    description={post.description}
+                    image={post.imageUrl}
+                    timestamp={post.timestamp}
+                    likesCount={post.likesCount ?? 0}
+                    commentsCount={post.commentsCount ?? 0}
+                    isLiked={false}
+                    isBookmarked={false}
+                    isFavorite={false}
+                    url={post.url}
+                    source={post.source}
+                  />
+                ))}
+          </div>
         ) : (
-          <TechNews articles={newsArticles} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {newsArticles.map((article, index) => (
+              <Card
+                key={index}
+                id={index.toString()}
+                userId="" // No userId for news articles
+                title={article.title}
+                description={article.description || "No description available"}
+                image={article.urlToImage || "https://via.placeholder.com/300"}
+                timestamp={new Date(article.publishedAt).toLocaleString()}
+                likesCount={0}
+                commentsCount={0}
+                isLiked={false}
+                isBookmarked={false}
+                isFavorite={false}
+                url={article.url}
+                source="api"
+              />
+            ))}
+          </div>
         )}
       </div>
     </div>

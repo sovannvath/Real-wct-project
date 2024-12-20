@@ -1,19 +1,38 @@
 "use client";
-import React, { useState } from "react";
-import { doc, updateDoc, increment, deleteDoc } from "firebase/firestore";
+import React, { useState, useEffect } from "react";
+import {
+  doc,
+  updateDoc,
+  increment,
+  deleteDoc,
+  collection,
+  addDoc,
+  onSnapshot,
+  serverTimestamp,
+  getDoc,
+} from "firebase/firestore";
 import { AiFillLike } from "react-icons/ai";
 import {
   FaRegCommentDots,
   FaBookmark,
   FaHeart,
   FaEllipsisV,
+  FaTimes,
 } from "react-icons/fa";
 import { db } from "@/app/services/firebase";
 import { toast, ToastContainer } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
+
+interface Comment {
+  id: string;
+  username: string;
+  comment: string;
+  timestamp: Date;
+}
 
 interface CardProps {
   id: string;
+  userId: string; // User ID from allPosts collection
   title: string;
   description: string;
   image?: string;
@@ -24,11 +43,12 @@ interface CardProps {
   isBookmarked?: boolean;
   isFavorite?: boolean;
   url: string;
-  source: "user" | "api";
+  source: "user" | "api" | "admin";
 }
 
 const Card: React.FC<CardProps> = ({
   id,
+  userId,
   title,
   description,
   image,
@@ -47,6 +67,37 @@ const Card: React.FC<CardProps> = ({
   const [likes, setLikes] = useState(likesCount);
   const [showOptions, setShowOptions] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [newComment, setNewComment] = useState("");
+  const [userProfile, setUserProfile] = useState<{
+    name: string;
+    profilePicture: string;
+  }>({
+    name: "Anonymous",
+    profilePicture: "",
+  });
+
+  useEffect(() => {
+    // Fetch user profile from `user` collection using userId
+    const fetchUserProfile = async () => {
+      try {
+        const userRef = doc(db, "user", userId);
+        const userDoc = await getDoc(userRef);
+        if (userDoc.exists()) {
+          setUserProfile(
+            userDoc.data() as { name: string; profilePicture: string }
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+      }
+    };
+
+    if (userId) {
+      fetchUserProfile();
+    }
+  }, [userId]);
 
   const toggleOptions = () => {
     setShowOptions((prev) => !prev);
@@ -54,29 +105,23 @@ const Card: React.FC<CardProps> = ({
 
   const handleShare = () => {
     navigator.clipboard.writeText(url);
-    alert("Post link copied to clipboard!");
+    toast.info("Post link copied to clipboard!");
   };
 
   const handleDelete = async () => {
-    if (source === "user") {
+    if (source === "user" || source === "admin") {
       setIsModalOpen(true);
     } else {
-      alert("You can only delete user posts!");
+      toast.error("You can only delete user or admin posts!");
     }
   };
 
   const confirmDelete = async () => {
     try {
-      // Reference to the post in Firestore
-      const postRef = doc(db, "addPostByUser", id);
-
-      // Delete the post from Firestore
+      const postRef = doc(db, "allPosts", id); // Unified collection
       await deleteDoc(postRef);
-
-      // Inform the user and update the feed state
       toast.success("Post deleted successfully!");
       setIsModalOpen(false);
-
       console.log(`Post ${id} deleted from Firestore.`);
     } catch (error) {
       console.error("Error deleting post: ", error);
@@ -85,37 +130,88 @@ const Card: React.FC<CardProps> = ({
   };
 
   const handleLike = async () => {
-    if (!id) return; // Ensure the post ID is available
     try {
-      const postRef = doc(db, "addPostByUser", id);
+      const postRef = doc(db, "allPosts", id);
       if (liked) {
-        // Unlike
         await updateDoc(postRef, { likesCount: increment(-1) });
         setLikes((prev) => (prev || 0) - 1);
       } else {
-        // Like
         await updateDoc(postRef, { likesCount: increment(1) });
         setLikes((prev) => (prev || 0) + 1);
       }
-      setLiked(!liked); // Toggle local state
+      setLiked(!liked);
     } catch (error) {
       console.error("Error updating likes: ", error);
-      alert("Failed to update likes. Please try again.");
+      toast.error("Failed to update likes. Please try again.");
     }
   };
 
   const handleReport = () => {
-    alert("Post reported successfully!");
+    toast.info("Post reported successfully!");
   };
+
+  const toggleCommentModal = () => {
+    setIsCommentModalOpen(!isCommentModalOpen);
+  };
+
+  const fetchComments = () => {
+    const commentsRef = collection(db, "allPosts", id, "comments");
+    const unsubscribe = onSnapshot(commentsRef, (snapshot) => {
+      const fetchedComments = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Comment[];
+      setComments(fetchedComments);
+    });
+
+    return unsubscribe;
+  };
+
+  const addComment = async () => {
+    if (!newComment.trim()) {
+      toast.error("Comment cannot be empty!");
+      return;
+    }
+    try {
+      const commentsRef = collection(db, "allPosts", id, "comments");
+      await addDoc(commentsRef, {
+        username: userProfile.name || "Anonymous",
+        comment: newComment,
+        timestamp: serverTimestamp(),
+      });
+      setNewComment("");
+      toast.success("Comment added successfully!");
+    } catch (error) {
+      console.error("Error adding comment:", error);
+      toast.error("Failed to add comment.");
+    }
+  };
+
+  useEffect(() => {
+    if (isCommentModalOpen) {
+      return fetchComments();
+    }
+  }, [isCommentModalOpen]);
 
   return (
     <div className="bg-[#0d0d0d] border border-gray-700 rounded-[40px] shadow-lg hover:shadow-xl transition-transform transform hover:scale-105 w-[350px] h-[445px] flex flex-col text-white relative">
-      {/* Header: View More Button and Options */}
+      {/* Profile Icon */}
+      <div className="absolute top-4 left-4 flex items-center space-x-2">
+        <img
+          src={userProfile.profilePicture || "/default-avatar.png"}
+          alt="Profile"
+          className="w-10 h-10 rounded-full object-cover"
+        />
+        <span className="text-sm text-gray-300 font-medium">
+          {userProfile.name || "Anonymous"}
+        </span>
+      </div>
+
+      {/* Header */}
       <div className="flex justify-end items-center px-5 py-3 space-x-2 relative">
         <a
           href={url}
           target="_blank"
-          rel="noopener noreferrer"
           className="bg-[#15919b] text-white py-2 px-4 rounded-xl hover:bg-white hover:text-black transition"
         >
           View More
@@ -132,11 +228,11 @@ const Card: React.FC<CardProps> = ({
               onClick={handleShare}
               className="w-full text-left px-4 py-2 hover:bg-gray-700"
             >
-              Share
+              Copy Link
             </button>
-            {source === "user" && (
+            {(source === "user" || source === "admin") && (
               <button
-                onClick={handleDelete}
+                onClick={() => setIsModalOpen(true)} // Open the confirmation modal
                 className="w-full text-left px-4 py-2 hover:bg-gray-700"
               >
                 Delete Post
@@ -150,11 +246,45 @@ const Card: React.FC<CardProps> = ({
             </button>
           </div>
         )}
+
+        {/* Confirmation Modal */}
+        {isModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-[400px] text-black">
+              <h2 className="text-xl font-bold mb-4">Confirm Delete</h2>
+              <p className="mb-6">
+                Are you sure you want to delete this post? This action cannot be
+                undone sir.
+              </p>
+              <div className="flex justify-end gap-4">
+                <button
+                  onClick={() => setIsModalOpen(false)} // Close the modal
+                  className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDelete} // Call the confirmDelete function
+                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Content */}
       <div className="p-5">
-        <h2 className="text-2xl font-semibold truncate mb-2">{title}</h2>
+        <h2 className="text-2xl font-semibold truncate mb-2">
+          {title}
+          {source === "admin" && (
+            <span className="ml-2 text-sm text-blue-400 font-medium">
+              (Admin)
+            </span>
+          )}
+        </h2>
         <p className="text-base text-gray-300 mb-3 line-clamp-3">
           {description}
         </p>
@@ -162,14 +292,9 @@ const Card: React.FC<CardProps> = ({
       </div>
 
       {/* Image */}
-      <div className="relative w-full h-[185px] bg-gray-800 overflow-hidden ">
+      <div className="relative w-full h-[185px] bg-gray-800 overflow-hidden">
         {image ? (
-          <img
-            src={image}
-            alt={title}
-            className="w-full h-full object-cover"
-            style={{ objectFit: "cover" }}
-          />
+          <img src={image} alt={title} className="w-full h-full object-cover" />
         ) : (
           <div className="flex items-center justify-center h-full text-gray-400">
             No Image
@@ -178,56 +303,83 @@ const Card: React.FC<CardProps> = ({
       </div>
 
       {/* Footer */}
-      {source === "user" && (
-        <div className="px-5 py-3 flex justify-between items-center text-gray-400">
-          <div
-            onClick={handleLike}
-            className="flex items-center space-x-1 cursor-pointer"
-          >
-            <AiFillLike className={`w-6 h-6 ${liked ? "text-blue-500" : ""}`} />
-            <span>{likes}</span>
-          </div>
-
-          <div className="flex items-center space-x-1">
-            <FaRegCommentDots className="w-5 h-5" />
-            <span>{commentsCount}</span>
-          </div>
-
-          <div
-            onClick={() => setBookmarked(!bookmarked)}
-            className="cursor-pointer"
-          >
-            <FaBookmark
-              className={`w-5 h-5 ${bookmarked ? "text-yellow-500" : ""}`}
-            />
-          </div>
-
-          <div
-            onClick={() => setFavorite(!favorite)}
-            className="cursor-pointer"
-          >
-            <FaHeart className={`w-5 h-5 ${favorite ? "text-red-500" : ""}`} />
-          </div>
+      <div className="px-5 py-3 flex justify-between items-center text-gray-400">
+        <div
+          onClick={handleLike}
+          className="flex items-center space-x-1 cursor-pointer"
+        >
+          <AiFillLike className={`w-6 h-6 ${liked ? "text-blue-500" : ""}`} />
+          <span>{likes}</span>
         </div>
-      )}
 
-      {/* Delete Confirmation Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white rounded-lg p-6 w-96 shadow-lg">
-            <h2 className="text-lg font-semibold text-black">Are you sure you want to delete this post?</h2>
-            <div className="mt-4 flex justify-end gap-2">
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
-              >
-                No
+        <div
+          onClick={toggleCommentModal}
+          className="flex items-center space-x-1 cursor-pointer"
+        >
+          <FaRegCommentDots className="w-5 h-5" />
+          <span>{comments.length || commentsCount || 0}</span>
+        </div>
+
+        <div
+          onClick={() => setBookmarked(!bookmarked)}
+          className="cursor-pointer"
+        >
+          <FaBookmark
+            className={`w-5 h-5 ${bookmarked ? "text-yellow-500" : ""}`}
+          />
+        </div>
+
+        <div onClick={() => setFavorite(!favorite)} className="cursor-pointer">
+          <FaHeart className={`w-5 h-5 ${favorite ? "text-red-500" : ""}`} />
+        </div>
+      </div>
+
+      {/* Comment Modal */}
+      {isCommentModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          {/* Modal Container */}
+          <div className="bg-[#1e1e2f] rounded-lg shadow-lg p-6 w-[600px] h-[500px] relative">
+            {/* Modal Header */}
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-white">Comments</h2>
+              <button onClick={toggleCommentModal}>
+                <FaTimes className="text-gray-400 hover:text-white w-5 h-5" />
               </button>
+            </div>
+
+            {/* Comments Section */}
+            <div className="max-h-[350px] overflow-y-auto mb-4 round-xl">
+              {comments.length > 0 ? (
+                comments.map((comment) => (
+                  <div
+                    key={comment.id}
+                    className="mb-3 p-3 bg-[#2a2a3f] rounded-lg text-white"
+                  >
+                    <p className="font-semibold">{comment.username}</p>
+                    <p className="text-sm text-gray-300">{comment.comment}</p>
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-400">
+                  No comments yet. Be the first to comment!
+                </p>
+              )}
+            </div>
+
+            {/* Add New Comment */}
+            <div className="absolute bottom-4 left-6 right-6 flex items-center space-x-2 rounded-xl">
+              <input
+                type="text"
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                className="flex-1 bg-[#2a2a3f] border border-gray-700 rounded-xl   p-2 text-white"
+                placeholder="Write a comment..."
+              />
               <button
-                onClick={confirmDelete}
-                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                onClick={addComment}
+                className="bg-[#4ade80] text-gray-900 font-bold py-2 px-4 rounded-xl"
               >
-                Yes
+                Comment
               </button>
             </div>
           </div>

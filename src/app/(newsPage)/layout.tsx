@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import ContentSidebar from "@/components/ContentSidebar";
-import ContentHeader from "@/components/contentHeader"; // Import the ContentHeader component
+import ContentHeader from "@/components/contentHeader"; 
 
 export const metadata: Metadata = {
   title: "Togethertechs",
