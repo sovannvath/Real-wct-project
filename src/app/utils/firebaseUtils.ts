@@ -9,7 +9,7 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 
-import { db } from "/home/vath/wct-togethertechs/src/app/services/firebase";
+import { db } from "../services/firebase";
 
 
 /**
