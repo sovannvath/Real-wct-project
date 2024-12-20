@@ -1,7 +1,13 @@
 // Import the functions you need from the SDKs
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
-import { initializeFirestore, collection, persistentLocalCache, persistentSingleTabManager, doc, setDoc, updateDoc, deleteDoc, addDoc, onSnapshot, serverTimestamp } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  onSnapshot,
+  serverTimestamp,
+  getFirestore,
+} from "firebase/firestore";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -13,13 +19,10 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+// Singleton Firebase initialization
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
-// Initialize Firestore with persistence
-const db = initializeFirestore(app, {
-  localCache: persistentLocalCache({ tabManager: persistentSingleTabManager(undefined) }),
-});
+const db = getFirestore(app);
 
 // Initialize Authentication
 const auth = getAuth(app);
@@ -29,7 +32,10 @@ const provider = new GoogleAuthProvider();
 const getCollectionRef = (name: string) => collection(db, name);
 
 // Function to add a comment
-export const addComment = async (postId: string, commentData: { userId: string; username: string; comment: string }) => {
+export const addComment = async (
+  postId: string,
+  commentData: { userId: string; username: string; comment: string }
+) => {
   try {
     const commentsRef = collection(db, "allPosts", postId, "comments");
     await addDoc(commentsRef, {
@@ -43,7 +49,10 @@ export const addComment = async (postId: string, commentData: { userId: string; 
 };
 
 // Function to fetch comments in real-time
-export const fetchComments = (postId: string, callback: (comments: any[]) => void) => {
+export const fetchComments = (
+  postId: string,
+  callback: (comments: any[]) => void
+) => {
   const commentsRef = collection(db, "allPosts", postId, "comments");
 
   const unsubscribe = onSnapshot(commentsRef, (snapshot) => {
