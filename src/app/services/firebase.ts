@@ -22,20 +22,21 @@ const firebaseConfig = {
 // Singleton Firebase initialization
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
+// Firestore instance
 const db = getFirestore(app);
 
-// Initialize Authentication
+// Authentication and provider
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// Utility for collection references
-const getCollectionRef = (name: string) => collection(db, name);
+// Utility for creating collection references
+const getCollectionRef = (collectionName: string) => collection(db, collectionName);
 
-// Function to add a comment
+// Add a comment to a post
 export const addComment = async (
   postId: string,
   commentData: { userId: string; username: string; comment: string }
-) => {
+): Promise<void> => {
   try {
     const commentsRef = collection(db, "allPosts", postId, "comments");
     await addDoc(commentsRef, {
@@ -48,11 +49,11 @@ export const addComment = async (
   }
 };
 
-// Function to fetch comments in real-time
+// Fetch comments in real-time
 export const fetchComments = (
   postId: string,
   callback: (comments: any[]) => void
-) => {
+): (() => void) => {
   const commentsRef = collection(db, "allPosts", postId, "comments");
 
   const unsubscribe = onSnapshot(commentsRef, (snapshot) => {
@@ -63,7 +64,7 @@ export const fetchComments = (
     callback(comments);
   });
 
-  return unsubscribe; // Unsubscribe listener
+  return unsubscribe; // Return unsubscribe function to stop listening when needed
 };
 
 // Export initialized services

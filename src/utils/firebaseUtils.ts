@@ -1,29 +1,14 @@
-import { 
-  getFirestore, 
-  doc, 
-  setDoc, 
-  updateDoc, 
-  deleteDoc, 
-  serverTimestamp, 
-  collection, 
-  addDoc, 
-  onSnapshot 
+import {
+  doc,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  serverTimestamp,
+  collection,
+  addDoc,
+  onSnapshot,
 } from "firebase/firestore";
-import { initializeApp } from "firebase/app";
-
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID",
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-export { db };
+import {db} from "/home/vath/wct-togethertechs/src/app/services/firebase"; // Import `db` from `firebase.ts`
 
 /**
  * Store a user in Firestore
@@ -97,7 +82,10 @@ export const removeUserFromFirestore = async (uid: string): Promise<void> => {
  * @param postId - The post's unique ID
  * @param commentData - An object containing comment details like userId, username, and comment text
  */
-export const addComment = async (postId: string, commentData: { userId: string; username: string; comment: string }) => {
+export const addComment = async (
+  postId: string,
+  commentData: { userId: string; username: string; comment: string }
+) => {
   try {
     const commentsRef = collection(db, "allPosts", postId, "comments");
     await addDoc(commentsRef, {
@@ -115,7 +103,10 @@ export const addComment = async (postId: string, commentData: { userId: string; 
  * @param postId - The post's unique ID
  * @param callback - A function to handle real-time updates to comments
  */
-export const fetchComments = (postId: string, callback: (comments: any[]) => void) => {
+export const fetchComments = (
+  postId: string,
+  callback: (comments: any[]) => void
+) => {
   const commentsRef = collection(db, "allPosts", postId, "comments");
 
   const unsubscribe = onSnapshot(commentsRef, (snapshot) => {
