@@ -8,7 +8,9 @@ import {
   addDoc,
   onSnapshot,
 } from "firebase/firestore";
-import { db } from "/services/firebase"
+
+import {db} from "@/app/services/firebase"
+
 
 /**
  * Store a user in Firestore
