@@ -23,15 +23,16 @@ const useProfile = () => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
-        setUser(currentUser);
-        const docRef = doc(db, "user", currentUser.uid); 
+        setUser(currentUser); // This ensures the current user is updated
+        const docRef = doc(db, "user", currentUser.uid);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          setProfile(docSnap.data() as UserProfile);
+          setProfile(docSnap.data() as UserProfile); // Update profile with logged-in user's data
         }
       }
       setLoading(false);
     });
+
     return () => unsubscribe();
   }, []);
 
@@ -39,8 +40,8 @@ const useProfile = () => {
     if (!user) throw new Error("User not authenticated");
 
     const docRef = doc(db, "user", user.uid);
-    await updateDoc(docRef, updatedProfile); 
-    setProfile({ ...profile, ...updatedProfile }); 
+    await updateDoc(docRef, updatedProfile);
+    setProfile({ ...profile, ...updatedProfile });
   };
 
   return { user, profile, setProfile, loading, updateProfile };

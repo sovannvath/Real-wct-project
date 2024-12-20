@@ -102,7 +102,7 @@ const useFetchNews = () => {
 
 // Main FeedPage Component
 const FeedPage = () => {
-  const [view, setView] = useState<"userPosts" | "techNews">("userPosts");
+  const [view, setView] = useState<"userPosts" | "techNews">("techNews");
   const { posts, loading } = useFetchPosts();
   const newsArticles = useFetchNews();
   const router = useRouter();
@@ -133,29 +133,56 @@ const FeedPage = () => {
   return (
     <div className="min-h-screen bg-[#0e1116] text-gray-800 relative">
       {/* Header Buttons */}
-      <div className="flex gap-2 mb-4 justify-center sm:justify-start">
-        <button
-          onClick={handleLogout}
-          className="px-4 py-2 bg-red-500 text-white rounded shadow-md hover:bg-red-600 transition h-12"
-        >
-          Logout
-        </button>
-        <button
-          onClick={() => handleViewChange("techNews")}
-          className={`w-[200px] px-4 py-2 bg-slate-500 text-white font-medium rounded-xl hover:bg-slate-600 transition duration-200 h-12 ${
-            view === "techNews" ? "bg-slate-700" : ""
-          }`}
-        >
-          Technology News
-        </button>
-        <button
-          onClick={() => handleViewChange("userPosts")}
-          className={`w-[135px] px-4 py-2 bg-slate-500 text-white font-medium rounded-xl hover:bg-slate-600 transition duration-200 h-12 ${
-            view === "userPosts" ? "bg-slate-700" : ""
-          }`}
-        >
-          Posts
-        </button>
+      <div className="flex gap-2 mb-4 justify-between items-center px-4">
+        {/* Left Side Buttons */}
+        <div className="flex gap-2">
+          <button
+            onClick={handleLogout}
+            className="px-4 py-2 bg-red-500 text-white rounded shadow-md hover:bg-red-600 transition h-12"
+          >
+            Logout
+          </button>
+          <button
+            onClick={() => handleViewChange("techNews")}
+            className={`w-[200px] px-4 py-2 bg-slate-500 text-white font-medium rounded-xl hover:bg-slate-600 transition duration-200 h-12 ${
+              view === "techNews" ? "bg-slate-700" : ""
+            }`}
+          >
+            Technology News
+          </button>
+          <button
+            onClick={() => handleViewChange("userPosts")}
+            className={`w-[135px] px-4 py-2 bg-slate-500 text-white font-medium rounded-xl hover:bg-slate-600 transition duration-200 h-12 ${
+              view === "userPosts" ? "bg-slate-700" : ""
+            }`}
+          >
+            Posts
+          </button>
+        </div>
+
+        {/* Group Button (Top Right) */}
+        <div>
+          <button
+            onClick={() => router.push("/groups")} // Navigate to Groups page
+            className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white font-medium rounded-xl shadow-md hover:bg-blue-600 transition duration-200 h-12"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="1.5"
+              stroke="currentColor"
+              className="w-5 h-5"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 6.75c3.45 0 6.75 2.58 6.75 6s-3.3 6-6.75 6-6.75-2.58-6.75-6 3.3-6 6.75-6zm-4.8 6h9.6M12 6.75v12"
+              />
+            </svg>
+            <span>Group</span>
+          </button>
+        </div>
       </div>
 
       {/* Main Content */}
@@ -175,7 +202,7 @@ const FeedPage = () => {
                   <Card
                     key={post.id}
                     id={post.id}
-                    userId={post.userId} // Pass userId to Card
+                    userId={post.userId}
                     title={post.title}
                     description={post.description}
                     image={post.imageUrl}

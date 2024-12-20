@@ -10,6 +10,7 @@ import {
   onSnapshot,
   serverTimestamp,
   getDoc,
+  getDocs,
 } from "firebase/firestore";
 import { AiFillLike } from "react-icons/ai";
 import {
@@ -22,6 +23,7 @@ import {
 import { db } from "@/app/services/firebase";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import useProfile from "@/hooks/useProfile";
 
 interface Comment {
   id: string;
@@ -69,6 +71,8 @@ const Card: React.FC<CardProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
   const [comments, setComments] = useState<Comment[]>([]);
+  const [localCommentsCount, setCommentsCount] = useState<number>(0);
+  const { profile } = useProfile(); // Access the logged-in user's profile
   const [newComment, setNewComment] = useState("");
   const [userProfile, setUserProfile] = useState<{
     name: string;
@@ -105,15 +109,6 @@ const Card: React.FC<CardProps> = ({
 
   const handleShare = () => {
     navigator.clipboard.writeText(url);
-    toast.info("Post link copied to clipboard!");
-  };
-
-  const handleDelete = async () => {
-    if (source === "user" || source === "admin") {
-      setIsModalOpen(true);
-    } else {
-      toast.error("You can only delete user or admin posts!");
-    }
   };
 
   const confirmDelete = async () => {
@@ -151,17 +146,25 @@ const Card: React.FC<CardProps> = ({
   };
 
   const toggleCommentModal = () => {
-    setIsCommentModalOpen(!isCommentModalOpen);
+    setIsCommentModalOpen((prev) => {
+      if (!prev) fetchComments();
+      return !prev;
+    });
   };
-
   const fetchComments = () => {
     const commentsRef = collection(db, "allPosts", id, "comments");
     const unsubscribe = onSnapshot(commentsRef, (snapshot) => {
-      const fetchedComments = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Comment[];
+      const fetchedComments = snapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          username: data.username,
+          comment: data.comment,
+          timestamp: data.timestamp?.toDate() || new Date(), // Convert Firestore Timestamp to Date
+        } as Comment;
+      });
       setComments(fetchedComments);
+      setCommentsCount(fetchedComments.length); // Update the count
     });
 
     return unsubscribe;
@@ -172,15 +175,15 @@ const Card: React.FC<CardProps> = ({
       toast.error("Comment cannot be empty!");
       return;
     }
+
     try {
       const commentsRef = collection(db, "allPosts", id, "comments");
       await addDoc(commentsRef, {
-        username: userProfile.name || "Anonymous",
+        username: profile.name || "Anonymous", // Use the current user's profile dynamically
         comment: newComment,
         timestamp: serverTimestamp(),
       });
       setNewComment("");
-      toast.success("Comment added successfully!");
     } catch (error) {
       console.error("Error adding comment:", error);
       toast.error("Failed to add comment.");
@@ -188,24 +191,38 @@ const Card: React.FC<CardProps> = ({
   };
 
   useEffect(() => {
-    if (isCommentModalOpen) {
-      return fetchComments();
-    }
-  }, [isCommentModalOpen]);
+    const fetchCommentCount = async () => {
+      const commentsRef = collection(db, "allPosts", id, "comments");
+      const snapshot = await getDocs(commentsRef);
+      setCommentsCount(snapshot.size); // Update the comment count
+    };
+
+    fetchCommentCount();
+  }, [id]);
+
+  const handleBookmark = () => {
+    setBookmarked(!bookmarked);
+  };
+
+  const handleFavorite = () => {
+    setFavorite(!favorite);
+  };
 
   return (
     <div className="bg-[#0d0d0d] border border-gray-700 rounded-[40px] shadow-lg hover:shadow-xl transition-transform transform hover:scale-105 w-[350px] h-[445px] flex flex-col text-white relative">
       {/* Profile Icon */}
-      <div className="absolute top-4 left-4 flex items-center space-x-2">
-        <img
-          src={userProfile.profilePicture || "/default-avatar.png"}
-          alt="Profile"
-          className="w-10 h-10 rounded-full object-cover"
-        />
-        <span className="text-sm text-gray-300 font-medium">
-          {userProfile.name || "Anonymous"}
-        </span>
-      </div>
+      {source !== "api" && (
+        <div className="absolute top-4 left-4 flex items-center space-x-2">
+          <img
+            src={userProfile.profilePicture || "/default-avatar.png"}
+            alt="Profile"
+            className="w-10 h-10 rounded-full object-cover"
+          />
+          <span className="text-sm text-gray-300 font-medium">
+            {userProfile.name || "Anonymous"}
+          </span>
+        </div>
+      )}
 
       {/* Header */}
       <div className="flex justify-end items-center px-5 py-3 space-x-2 relative">
@@ -213,16 +230,19 @@ const Card: React.FC<CardProps> = ({
           href={url}
           target="_blank"
           className="bg-[#15919b] text-white py-2 px-4 rounded-xl hover:bg-white hover:text-black transition"
+          rel="noopener noreferrer"
         >
           View More
         </a>
-        <button
-          className="text-gray-400 hover:text-white relative"
-          onClick={toggleOptions}
-        >
-          <FaEllipsisV className="w-5 h-5" />
-        </button>
-        {showOptions && (
+        {source !== "api" && (
+          <button
+            className="text-gray-400 hover:text-white relative"
+            onClick={toggleOptions}
+          >
+            <FaEllipsisV className="w-5 h-5" />
+          </button>
+        )}
+        {showOptions && source !== "api" && (
           <div className="absolute top-10 right-0 bg-[#1e1e1e] text-white shadow-lg rounded-lg z-50 w-40 py-2">
             <button
               onClick={handleShare}
@@ -254,7 +274,7 @@ const Card: React.FC<CardProps> = ({
               <h2 className="text-xl font-bold mb-4">Confirm Delete</h2>
               <p className="mb-6">
                 Are you sure you want to delete this post? This action cannot be
-                undone sir.
+                undone.
               </p>
               <div className="flex justify-end gap-4">
                 <button
@@ -304,22 +324,29 @@ const Card: React.FC<CardProps> = ({
 
       {/* Footer */}
       <div className="px-5 py-3 flex justify-between items-center text-gray-400">
-        <div
-          onClick={handleLike}
-          className="flex items-center space-x-1 cursor-pointer"
-        >
-          <AiFillLike className={`w-6 h-6 ${liked ? "text-blue-500" : ""}`} />
-          <span>{likes}</span>
-        </div>
+        {/* Conditionally render Like and Comment buttons */}
+        {source !== "api" && (
+          <>
+            <div
+              onClick={handleLike}
+              className="flex items-center space-x-1 cursor-pointer"
+            >
+              <AiFillLike
+                className={`w-6 h-6 ${liked ? "text-blue-500" : ""}`}
+              />
+              <span>{likes}</span>
+            </div>
+            <div
+              onClick={toggleCommentModal}
+              className="flex items-center space-x-1 cursor-pointer"
+            >
+              <FaRegCommentDots className="w-5 h-5" />
+              <span>{comments.length || commentsCount || 0}</span>
+            </div>
+          </>
+        )}
 
-        <div
-          onClick={toggleCommentModal}
-          className="flex items-center space-x-1 cursor-pointer"
-        >
-          <FaRegCommentDots className="w-5 h-5" />
-          <span>{comments.length || commentsCount || 0}</span>
-        </div>
-
+        {/* Bookmark and Favorite Buttons (Always Render) */}
         <div
           onClick={() => setBookmarked(!bookmarked)}
           className="cursor-pointer"
@@ -328,65 +355,10 @@ const Card: React.FC<CardProps> = ({
             className={`w-5 h-5 ${bookmarked ? "text-yellow-500" : ""}`}
           />
         </div>
-
         <div onClick={() => setFavorite(!favorite)} className="cursor-pointer">
           <FaHeart className={`w-5 h-5 ${favorite ? "text-red-500" : ""}`} />
         </div>
       </div>
-
-      {/* Comment Modal */}
-      {isCommentModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          {/* Modal Container */}
-          <div className="bg-[#1e1e2f] rounded-lg shadow-lg p-6 w-[600px] h-[500px] relative">
-            {/* Modal Header */}
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-white">Comments</h2>
-              <button onClick={toggleCommentModal}>
-                <FaTimes className="text-gray-400 hover:text-white w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Comments Section */}
-            <div className="max-h-[350px] overflow-y-auto mb-4 round-xl">
-              {comments.length > 0 ? (
-                comments.map((comment) => (
-                  <div
-                    key={comment.id}
-                    className="mb-3 p-3 bg-[#2a2a3f] rounded-lg text-white"
-                  >
-                    <p className="font-semibold">{comment.username}</p>
-                    <p className="text-sm text-gray-300">{comment.comment}</p>
-                  </div>
-                ))
-              ) : (
-                <p className="text-gray-400">
-                  No comments yet. Be the first to comment!
-                </p>
-              )}
-            </div>
-
-            {/* Add New Comment */}
-            <div className="absolute bottom-4 left-6 right-6 flex items-center space-x-2 rounded-xl">
-              <input
-                type="text"
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                className="flex-1 bg-[#2a2a3f] border border-gray-700 rounded-xl   p-2 text-white"
-                placeholder="Write a comment..."
-              />
-              <button
-                onClick={addComment}
-                className="bg-[#4ade80] text-gray-900 font-bold py-2 px-4 rounded-xl"
-              >
-                Comment
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

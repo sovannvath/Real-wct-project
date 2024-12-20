@@ -107,9 +107,9 @@ const AddProjectForm: React.FC = () => {
         description: formData.description,
         url: formData.url,
         techList: formData.techList,
-        imageUrl: imageUrl || "", // Empty string if image upload fails
-        timestamp: serverTimestamp(), // Firestore server-side timestamp
-        userId: userId, // Include the authenticated user's ID
+        imageUrl: imageUrl || "", 
+        timestamp: serverTimestamp(), 
+        userId: userId, 
       });
 
       console.log("Document written with ID:", postRef.id);
@@ -219,7 +219,7 @@ const AddProjectForm: React.FC = () => {
         </div>
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition duration-300"
+          className="w-full bg-black  text-white py-2 rounded-xl hover:bg-blue-600 transition duration-300"
           disabled={loading}
         >
           {loading ? "Submitting..." : "Submit"}

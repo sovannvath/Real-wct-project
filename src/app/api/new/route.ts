@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
-  const apiKey = process.env.NEWS_API_KEY; // Make sure this is set in your environment variables
-  const url = `https://newsapi.org/v2/top-headlines?category=technology&country=us&apiKey=${apiKey}`;
+  const apiKey = process.env.NEWS_API_KEY; // Ensure this is set in your environment variables
+  const url = `https://newsapi.org/v2/everything?q=apple&from=2024-12-19&to=2024-12-19&sortBy=popularity&apiKey=${apiKey}`;
 
   try {
     const response = await fetch(url);
