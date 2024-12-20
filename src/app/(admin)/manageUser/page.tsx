@@ -8,7 +8,7 @@ import {
   disableUserInFirestore,
   enableUserInFirestore,
   removeUserFromFirestore,
-} from "@/utils/firebaseUtils";
+} from "@/app/utils/firebaseUtils";
 
 const ManagePost = () => {
   const [users, setUsers] = useState<User[]>([]);
