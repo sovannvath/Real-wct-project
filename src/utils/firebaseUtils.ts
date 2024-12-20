@@ -8,7 +8,7 @@ import {
   addDoc,
   onSnapshot,
 } from "firebase/firestore";
-import {db} from "/home/vath/wct-togethertechs/src/app/services/firebase"; // Import `db` from `firebase.ts`
+import { db } from "/app/services/firebase"// Import `db` from `firebase.ts`
 
 /**
  * Store a user in Firestore
